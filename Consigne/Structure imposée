@@ -12,7 +12,7 @@
 		int puissance;
 		// pointeur sur une ville
 		PTville villeDesservie;	
-		// liste simplement chainée
+		// liste simplement chainÃ©e
 		struct lignesElectrique * ligneSuivante ;
 	} TlignesElectrique;
 	
@@ -23,7 +23,7 @@
 		int codeCentrale;
 		// Pointeur sur la liste des lignes 
 		PTligneElectrique villeDependante;
-		// Liste doublement chainée 
+		// Liste doublement chainÃ©e 
 		struct centrale * ptsuivant;
 		struct centrale * ptprecedent;
 	}Tcentrale;
