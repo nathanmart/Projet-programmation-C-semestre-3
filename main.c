@@ -142,6 +142,51 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     pcentrale->villeDependante->ligneSuivante = NULL;
 }
 
+void affichage_general(PTcentrale pPremiereCentrale, PTville pPremiereVille){
+    //Création pointeur temporaire
+    PTcentrale pcentrale;
+    PTville pville;
+    PTligneElectrique pligne;
+
+    printf("************************************************************\n");
+
+
+    /*
+     * Affichage des villes
+     */
+
+    printf("Affichage des villes; \n");
+    pville = pPremiereVille;
+    while (pville){
+        //Calcul puissance total
+        printf("Code postal: %d\n", pville->codePostal);
+        pville = pville->villeSuivante;
+    }
+    printf("************************************************************\n");
+
+
+    /*
+     * Affichage des centrales
+     */
+
+    printf("Affichage des centrales:\n");
+    pcentrale = pPremiereCentrale;
+    while (pcentrale){
+        printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max, pcentrale->puissance_restante);
+        printf("Les connexions sont les suivantes:\n");
+        pligne = pcentrale->villeDependante;
+        while (pligne){
+            printf("Liaison avec la ville %d pour une puissance de %dMG\n", pligne->villeDesservie->codePostal, pligne->puissance);
+            pligne = pligne->ligneSuivante;
+        }
+
+        printf("\n");
+        pcentrale = pcentrale->ptsuivant;
+    }
+
+    printf("************************************************************\n");
+}
+
 
 int main() {
     //Création pointeurs vers les centrales et les villes
@@ -153,6 +198,7 @@ int main() {
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
     creation_test(pPremiereCentrale, pPremiereVille);
+    affichage_general(pPremiereCentrale, pPremiereVille);
 
 
 
