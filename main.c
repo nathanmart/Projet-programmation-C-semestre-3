@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdio.h>
 #include <malloc.h>
-//#include <windows.h>
 
 //Structure des villes
 typedef struct ville {
@@ -48,6 +47,7 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     //Création pointeur temporaire
     PTcentrale pcentrale;
     PTville pville;
+    PTligneElectrique pligne;
 
 
     /*
@@ -106,10 +106,8 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
      * Création des liens
      */
 
-
     //Lien centrale 1 <-> ville 1
     pcentrale = pPremiereCentrale;
-
 
     pville = pPremiereVille;
     pcentrale->villeDependante->villeDesservie = pville;
@@ -121,7 +119,6 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     //Lien centrale 2 <-> ville 2 & 3
     pcentrale = pcentrale->ptsuivant;
 
-
     pville = pville->villeSuivante;
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 900;
@@ -130,10 +127,11 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
 
 
     pville = pville->villeSuivante;
-    pcentrale->villeDependante->villeDesservie = pville;
-    pcentrale->villeDependante->puissance = 400;
+    pligne = pcentrale->villeDependante->ligneSuivante;
+    pligne->villeDesservie = pville;
+    pligne->puissance = 400;
     pcentrale->puissance_restante -= 400;
-    pcentrale->villeDependante->ligneSuivante = NULL;
+    pligne->ligneSuivante = NULL;
 
 
     //Lien centrale 3 <-> ville 3
@@ -142,7 +140,6 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     pcentrale->villeDependante->puissance = 1500;
     pcentrale->puissance_restante -= 1500;
     pcentrale->villeDependante->ligneSuivante = NULL;
-
 }
 
 
