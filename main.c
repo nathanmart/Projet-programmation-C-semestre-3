@@ -155,11 +155,22 @@ void affichage_general(PTcentrale pPremiereCentrale, PTville pPremiereVille){
      * Affichage des villes
      */
 
-    printf("Affichage des villes; \n");
+    printf("Affichage des villes; \n\n");
     pville = pPremiereVille;
     while (pville){
         //Calcul puissance total
-        printf("Code postal: %d\n", pville->codePostal);
+        int puissance_recu = 0;
+        pcentrale = pPremiereCentrale;
+        while (pcentrale){
+            pligne = pcentrale->villeDependante;
+            while (pligne){
+                if (pligne->villeDesservie == pville) puissance_recu += pligne->puissance;
+                pligne = pligne->ligneSuivante;
+            }
+            pcentrale = pcentrale->ptsuivant;
+        }
+
+        printf("Code postal: %d, puissance recu: %d\n", pville->codePostal, puissance_recu);
         pville = pville->villeSuivante;
     }
     printf("************************************************************\n");
@@ -169,7 +180,7 @@ void affichage_general(PTcentrale pPremiereCentrale, PTville pPremiereVille){
      * Affichage des centrales
      */
 
-    printf("Affichage des centrales:\n");
+    printf("Affichage des centrales:\n\n");
     pcentrale = pPremiereCentrale;
     while (pcentrale){
         printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max, pcentrale->puissance_restante);
