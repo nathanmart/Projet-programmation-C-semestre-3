@@ -46,6 +46,10 @@ typedef Tcentrale * PTcentrale;
 int main() {
 
 
+    PTcentrale pPremiereCentrale;
+    PTville pPremiereVille;
+
+
 
     return 0;
 }
