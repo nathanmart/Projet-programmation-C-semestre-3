@@ -6,7 +6,8 @@
 
 #include <stdio.h>
 #include <stdio.h>
-#include <malloc.h>
+//#include <malloc.h>
+#include <stdlib.h>
 
 //Structure des villes
 typedef struct ville {
