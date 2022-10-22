@@ -34,7 +34,6 @@ typedef TlignesElectrique * PTligneElectrique;
 typedef struct centrale{
     int codeCentrale;
     int puissance_max;
-    int puissance_restante;
     // Pointeur sur la liste des lignes
     PTligneElectrique villeDependante;
     // Liste doublement chainée
@@ -49,6 +48,24 @@ typedef Tcentrale * PTcentrale;
 //On utilise ici des variables globales
 PTcentrale pPremiereCentrale;
 PTville pPremiereVille;
+
+
+/*
+ * Cette fonction renvoie la puissance restrance d'une centrale
+ */
+int get_puissance_restante_centrale(PTcentrale pcentral){
+    int puissance_restante = pcentral->puissance_max;
+    PTligneElectrique pligne = pcentral->villeDependante;
+
+    while (pligne != NULL){
+        puissance_restante -= pligne->puissance;
+        pligne = pligne->ligneSuivante;
+    }
+
+    return puissance_restante;
+}
+
+
 
 /*
  * Cette fonction est utile seulement pour le développement.
@@ -83,6 +100,11 @@ void creation_test(){
     //Création troisieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 3;
+    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+
+    //Création quatrieme ville
+    pville = pville->villeSuivante;
+    pville->codePostal = 4;
     pville->villeSuivante = NULL;
 
 
@@ -94,28 +116,42 @@ void creation_test(){
     pcentrale = pPremiereCentrale;
     pcentrale->codeCentrale = 1;
     pcentrale->puissance_max = 1000;
-    pcentrale->puissance_restante = 1000;
     pcentrale->ptprecedent = NULL;
     pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+    pcentrale->villeDependante->villeDesservie = NULL;
+    pcentrale->villeDependante->puissance = 0;
 
     //Création deuxième centrale
     pcentrale->ptsuivant->ptprecedent = pcentrale;
     pcentrale = pPremiereCentrale->ptsuivant;
     pcentrale->codeCentrale = 2;
     pcentrale->puissance_max = 1500;
-    pcentrale->puissance_restante = 1500;
     pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+    pcentrale->villeDependante->villeDesservie = NULL;
+    pcentrale->villeDependante->puissance = 0;
 
     //Création troisième centrale
     pcentrale->ptsuivant->ptprecedent = pcentrale;
     pcentrale = pcentrale->ptsuivant;
     pcentrale->codeCentrale = 3;
     pcentrale->puissance_max = 2000;
-    pcentrale->puissance_restante = 2000;
+    pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
+    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+    pcentrale->villeDependante->villeDesservie = NULL;
+    pcentrale->villeDependante->puissance = 0;
+
+    //Création quatrième centrale
+    pcentrale->ptsuivant->ptprecedent = pcentrale;
+    pcentrale = pcentrale->ptsuivant;
+    pcentrale->codeCentrale = 4;
+    pcentrale->puissance_max = 5000;
     pcentrale->ptsuivant = NULL;
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+
+    pcentrale->villeDependante->villeDesservie = NULL;
+    pcentrale->villeDependante->puissance = 0;
 
 
     /*
@@ -128,7 +164,6 @@ void creation_test(){
     pville = pPremiereVille;
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 1000;
-    pcentrale->puissance_restante -= 1000;
     pcentrale->villeDependante->ligneSuivante = NULL;
 
 
@@ -138,7 +173,6 @@ void creation_test(){
     pville = pville->villeSuivante;
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 900;
-    pcentrale->puissance_restante -= 900;
     pcentrale->villeDependante->ligneSuivante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
 
 
@@ -146,7 +180,6 @@ void creation_test(){
     pligne = pcentrale->villeDependante->ligneSuivante;
     pligne->villeDesservie = pville;
     pligne->puissance = 400;
-    pcentrale->puissance_restante -= 400;
     pligne->ligneSuivante = NULL;
 
 
@@ -154,7 +187,6 @@ void creation_test(){
     pcentrale = pcentrale->ptsuivant;
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 1500;
-    pcentrale->puissance_restante -= 1500;
     pcentrale->villeDependante->ligneSuivante = NULL;
 }
 
@@ -205,19 +237,64 @@ void affichage_general(){
     printf("Affichage des centrales:\n\n");
     pcentrale = pPremiereCentrale;
     while (pcentrale){
-        printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max, pcentrale->puissance_restante);
+        printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max,
+               get_puissance_restante_centrale(pcentrale));
         printf("Les connexions sont les suivantes:\n");
         pligne = pcentrale->villeDependante;
-        while (pligne){
+
+        while (pligne && pligne->villeDesservie){
             printf("Liaison avec la ville %d pour une puissance de %dMG\n", pligne->villeDesservie->codePostal, pligne->puissance);
             pligne = pligne->ligneSuivante;
         }
+
 
         printf("\n");
         pcentrale = pcentrale->ptsuivant;
     }
 
     printf("************************************************************\n");
+}
+
+
+
+/*
+ * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
+ * Renvoie 1 si il reste assez de puissance
+ * Renvoi 0 si il n'y a plus assez de puissance
+ */
+int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
+    if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
+    else return 0;
+}
+
+
+/*
+ * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
+ * Signification valeur de retour:
+ *      0 --> Pas assez de puissance disponible dans la centrale
+ *      1 --> Nouvelle connexion créé
+ */
+int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
+    //Vérification de la puissance restante de la centrale
+    if (!check_puissance_suffisante(pcentrale, puissance)) return 0;
+
+    //On vient se placer à la dernière connexion
+    //La nouvelle connexion est donc ajoutée à la fin de la liste
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while(pligne->ligneSuivante != NULL) pligne = pligne->ligneSuivante;
+
+    //Dans le cas où il y a déja une connexion sur cette centrale, on se place sur la connexion suivante
+    if (pcentrale->villeDependante->puissance != 0){
+        pligne->ligneSuivante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+        pligne = pligne->ligneSuivante;
+    }
+
+    //Paramétrage de la nouvelle connexion
+    pligne->ligneSuivante = NULL;
+    pligne->villeDesservie = pville;
+    pligne->puissance = puissance;
+
+    return 1;
 }
 
 
@@ -229,7 +306,9 @@ int main() {
     creation_test();
     affichage_general();
 
+    printf("%d", ajouter_connexion(pPremiereCentrale->ptsuivant->ptsuivant->ptsuivant, pPremiereVille, 150));
 
+    affichage_general();
 
     return 0;
 }
