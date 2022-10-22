@@ -6,15 +6,15 @@
 
 #include <stdio.h>
 #include <stdio.h>
-//#include <malloc.h>
 #include <stdlib.h>
+
 
 //Structure des villes
 typedef struct ville {
     int codePostal;
     struct ville * villeSuivante;
 } Tville;
-
+//Pointeur associé à la structure
 typedef Tville * PTville;
 
 
@@ -26,7 +26,7 @@ typedef struct lignesElectrique {
     // liste simplement chainée
     struct lignesElectrique * ligneSuivante ;
 } TlignesElectrique;
-
+//Pointeur associé à la structure
 typedef TlignesElectrique * PTligneElectrique;
 
 
@@ -41,10 +41,25 @@ typedef struct centrale{
     struct centrale * ptsuivant;
     struct centrale * ptprecedent;
 }Tcentrale;
-
+//Pointeur associé à la structure
 typedef Tcentrale * PTcentrale;
 
-void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
+
+//Création pointeurs vers les centrales et les villes
+//On utilise ici des variables globales
+PTcentrale pPremiereCentrale;
+PTville pPremiereVille;
+
+/*
+ * Cette fonction est utile seulement pour le développement.
+ * Elle créé 3 centrales et 3 villes.
+ *
+ * Les connexions entre ces élements sont les suivants:
+ * La centrale 1 et la ville 1 simplement reliées entre elles
+ * La centrale 2 reliée aux ville 2 et 3
+ * La centrale 3 relié à la ville 3
+ */
+void creation_test(){
     //Création pointeur temporaire
     PTcentrale pcentrale;
     PTville pville;
@@ -143,7 +158,13 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     pcentrale->villeDependante->ligneSuivante = NULL;
 }
 
-void affichage_general(PTcentrale pPremiereCentrale, PTville pPremiereVille){
+
+/*
+ * Cette fonction est utile seulement pour le développement
+ * Elle permet d'afficher dands la console l'ensemble des villes et des centrales, ainsi que les connexions avec
+ * les différentes valeurs
+ */
+void affichage_general(){
     //Création pointeur temporaire
     PTcentrale pcentrale;
     PTville pville;
@@ -201,16 +222,12 @@ void affichage_general(PTcentrale pPremiereCentrale, PTville pPremiereVille){
 
 
 int main() {
-    //Création pointeurs vers les centrales et les villes
-    PTcentrale pPremiereCentrale, pcentrale;
-    PTville pPremiereVille, pville;
-
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    creation_test(pPremiereCentrale, pPremiereVille);
-    affichage_general(pPremiereCentrale, pPremiereVille);
+    creation_test();
+    affichage_general();
 
 
 
