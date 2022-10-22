@@ -267,16 +267,75 @@ int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
     else return 0;
 }
 
+/*
+ * Vérifie si une connexion entre une centrale et une ville existe
+ * Renvoie 1 si elle existe
+ * Renvoie 0 si elle n'existe pas
+ */
+int check_existance_connexion(PTcentrale pcentrale, PTville pvile){
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while (pligne && pligne->villeDesservie){
+        if (pligne->villeDesservie == pvile) return 1;
+        pligne = pligne->ligneSuivante;
+    }
+    return 0;
+}
+
+
+/*
+ * Cette fonction additionne une nouvelle puissance avec celle existante d'une connexion
+ * Renvoie 1 si tout s'est bien passé
+ * Renvoie 0 en cas d'erreur
+ */
+int additionner_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while (pligne){
+        if (pligne->villeDesservie == pvile){
+            pligne->puissance += puissance;
+            return 1;
+        }
+        pligne = pligne->ligneSuivante;
+    }
+    return 0;
+}
+
+
+/*
+ * Cette fonction change la puissance d'une connexion existante
+ * Renvoie 1 si tout s'est bien passé
+ * Renvoie 0 en cas d'erreur
+ */
+int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while (pligne){
+        if (pligne->villeDesservie == pvile){
+            pligne->puissance = puissance;
+            return 1;
+        }
+        pligne = pligne->ligneSuivante;
+    }
+    return 0;
+}
+
 
 /*
  * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
  * Signification valeur de retour:
  *      0 --> Pas assez de puissance disponible dans la centrale
  *      1 --> Nouvelle connexion créé
+ *      2 --> Modification d'une connexion existante
  */
 int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     //Vérification de la puissance restante de la centrale
     if (!check_puissance_suffisante(pcentrale, puissance)) return 0;
+
+    //Si la connexion existe déja, on additionne les deux puissance
+    if (check_existance_connexion(pcentrale, pville)){
+        additionner_connexion(pcentrale, pville, puissance);
+        return 2;
+    }
+
+    //Création d'une nouvelle connexion
 
     //On vient se placer à la dernière connexion
     //La nouvelle connexion est donc ajoutée à la fin de la liste
@@ -306,9 +365,11 @@ int main() {
     creation_test();
     affichage_general();
 
-    printf("%d", ajouter_connexion(pPremiereCentrale->ptsuivant->ptsuivant->ptsuivant, pPremiereVille, 150));
+    modifier_connexion(pPremiereCentrale->ptsuivant->ptsuivant, pPremiereVille->villeSuivante->villeSuivante, 250);
 
     affichage_general();
+
+
 
     return 0;
 }
