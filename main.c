@@ -5,8 +5,8 @@
 //Automne 2022
 
 #include <stdio.h>
-#include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
+// #include <malloc.h>
 
 //Structure des villes
 typedef struct ville {
@@ -57,7 +57,7 @@ void creation_test(PTcentrale pPremiereCentrale, PTville pPremiereVille){
     //Création première ville
     pville = pPremiereVille;
     pville->codePostal = 1;
-    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+    pville->villeSuivante = (PTville)malloc(sizeof (Tville));
 
     //Création deuxieme ville
     pville = pville->villeSuivante;
