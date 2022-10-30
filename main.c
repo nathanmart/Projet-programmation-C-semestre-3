@@ -259,8 +259,8 @@ void affichage_general(){
 
 /*
  * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
- * Renvoie 1 s'il reste assez de puissance
- * Renvoi 0 s'il n'y a plus assez de puissance
+ * Renvoie 1 si il reste assez de puissance
+ * Renvoi 0 si il n'y a plus assez de puissance
  */
 int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
     if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
@@ -320,14 +320,24 @@ int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
 
 /*
  * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
- * Signification valeur de retour :
+ * Signification valeur de retour:
  *      0 --> Pas assez de puissance disponible dans la centrale
  *      1 --> Nouvelle connexion créé
  *      2 --> Modification d'une connexion existante
  */
 int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
+    //Vérification de la puissance restante de la centrale
+    if (!check_puissance_suffisante(pcentrale, puissance)) return 0;
 
+    //Si la connexion existe déja, on additionne les deux puissance
+    if (check_existance_connexion(pcentrale, pville)){
+        additionner_connexion(pcentrale, pville, puissance);
+        return 2;
+    }
 
+    //Création d'une nouvelle connexion
+
+    //On vient se placer à la dernière connexion
     //La nouvelle connexion est donc ajoutée à la fin de la liste
     PTligneElectrique pligne = pcentrale->villeDependante;
     while(pligne->ligneSuivante != NULL) pligne = pligne->ligneSuivante;
@@ -346,9 +356,6 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     return 1;
 }
 
-void ajout_ville(int code_postal){
-    //fonction ajout_ville
-}
 
 int main() {
     //Création adresse première ville et centrale
