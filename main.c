@@ -43,11 +43,15 @@ typedef struct centrale{
 //Pointeur associé à la structure
 typedef Tcentrale * PTcentrale;
 
+//On utilise ici des variables globales
 
 //Création pointeurs vers les centrales et les villes
-//On utilise ici des variables globales
 PTcentrale pPremiereCentrale;
 PTville pPremiereVille;
+
+//Compteur nombre ville && centrale
+int nbville = 0;
+int nbcentrales = 0;
 
 
 /*
@@ -91,21 +95,25 @@ void creation_test(){
     pville = pPremiereVille;
     pville->codePostal = 1;
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+    nbville++;
 
     //Création deuxieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 2;
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+    nbville++;
 
     //Création troisieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 3;
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+    nbville++;
 
     //Création quatrieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 4;
     pville->villeSuivante = NULL;
+    nbville++;
 
 
     /*
@@ -121,6 +129,7 @@ void creation_test(){
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
     pcentrale->villeDependante->villeDesservie = NULL;
     pcentrale->villeDependante->puissance = 0;
+    nbcentrales++;
 
     //Création deuxième centrale
     pcentrale->ptsuivant->ptprecedent = pcentrale;
@@ -131,6 +140,7 @@ void creation_test(){
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
     pcentrale->villeDependante->villeDesservie = NULL;
     pcentrale->villeDependante->puissance = 0;
+    nbcentrales++;
 
     //Création troisième centrale
     pcentrale->ptsuivant->ptprecedent = pcentrale;
@@ -141,6 +151,7 @@ void creation_test(){
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
     pcentrale->villeDependante->villeDesservie = NULL;
     pcentrale->villeDependante->puissance = 0;
+    nbcentrales++;
 
     //Création quatrième centrale
     pcentrale->ptsuivant->ptprecedent = pcentrale;
@@ -149,9 +160,9 @@ void creation_test(){
     pcentrale->puissance_max = 5000;
     pcentrale->ptsuivant = NULL;
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-
     pcentrale->villeDependante->villeDesservie = NULL;
     pcentrale->villeDependante->puissance = 0;
+    nbcentrales++;
 
 
     /*
@@ -210,12 +221,12 @@ void affichage_general(){
      */
 
     printf("Affichage des villes; \n\n");
-
-    while (pville){
+    pville = pPremiereVille;
+    while (pville && nbville){
         //Calcul puissance total
         int puissance_recu = 0;
         pcentrale = pPremiereCentrale;
-        while (pcentrale){
+        while (pcentrale && nbcentrales){
             pligne = pcentrale->villeDependante;
             while (pligne){
                 if (pligne->villeDesservie == pville) puissance_recu += pligne->puissance;
@@ -236,7 +247,7 @@ void affichage_general(){
 
     printf("Affichage des centrales:\n\n");
     pcentrale = pPremiereCentrale;
-    while (pcentrale){
+    while (pcentrale && nbcentrales){
         printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max,
                get_puissance_restante_centrale(pcentrale));
         printf("Les connexions sont les suivantes:\n");
@@ -363,7 +374,7 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
  */
 int check_code_postal_utilise(int code_postal){
     PTville pville = pPremiereVille;
-    while (pville){
+    while (pville && nbville){
         if (pville->codePostal == code_postal) return 1;
         pville = pville->villeSuivante;
     }
@@ -379,14 +390,20 @@ int ajouter_ville(int code_postal){
     //Vérification code postal
     if (check_code_postal_utilise(code_postal)) return 0;
 
-    //Déplacement vers la dernière ville enrengistrée
     PTville pville = pPremiereVille;
-    while (pville->villeSuivante) pville = pville->villeSuivante;
 
-    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
-    pville = pville->villeSuivante;
+    //Si il y a déja des villes
+    if(nbville) {
+        //Déplacement vers la dernière ville enrengistrée
+        while (pville->villeSuivante) pville = pville->villeSuivante;
+
+        pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+        pville = pville->villeSuivante;
+    }
+
     pville->codePostal = code_postal;
     pville->villeSuivante = NULL;
+    nbville++;
 
     return 1;
 }
@@ -399,11 +416,11 @@ int main() {
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
     //creation_test();
+    //affichage_general();
+
+    printf("%d", ajouter_ville(10));
+
     affichage_general();
-
-    //printf("%d", ajouter_ville(10));
-
-   // affichage_general();
 
     return 0;
 }
