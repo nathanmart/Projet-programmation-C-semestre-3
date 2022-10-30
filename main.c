@@ -210,7 +210,7 @@ void affichage_general(){
      */
 
     printf("Affichage des villes; \n\n");
-    pville = pPremiereVille;
+
     while (pville){
         //Calcul puissance total
         int puissance_recu = 0;
@@ -356,20 +356,54 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     return 1;
 }
 
+/*
+ * Cette fonction vérifie si un code postal est déja utilisé pour une ville
+ * Renvoie 0 si il n'est pas utilisé
+ * Renvoi 1 si il est déja utilisé
+ */
+int check_code_postal_utilise(int code_postal){
+    PTville pville = pPremiereVille;
+    while (pville){
+        if (pville->codePostal == code_postal) return 1;
+        pville = pville->villeSuivante;
+    }
+    return 0;
+}
+
+/*
+ * Cette fonction permet d'ajouter une ville
+ * Renvoi 0 si le code postal est déja utilisé
+ * Renvoi 1 si la ville a bien été créée
+ */
+int ajouter_ville(int code_postal){
+    //Vérification code postal
+    if (check_code_postal_utilise(code_postal)) return 0;
+
+    //Déplacement vers la dernière ville enrengistrée
+    PTville pville = pPremiereVille;
+    while (pville->villeSuivante) pville = pville->villeSuivante;
+
+    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+    pville = pville->villeSuivante;
+    pville->codePostal = code_postal;
+    pville->villeSuivante = NULL;
+
+    return 1;
+}
+
+
 
 int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    creation_test();
+    //creation_test();
     affichage_general();
 
-    modifier_connexion(pPremiereCentrale->ptsuivant->ptsuivant, pPremiereVille->villeSuivante->villeSuivante, 250);
+    //printf("%d", ajouter_ville(10));
 
-    affichage_general();
-
-
+   // affichage_general();
 
     return 0;
 }
