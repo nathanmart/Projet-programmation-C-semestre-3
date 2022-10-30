@@ -356,6 +356,9 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     return 1;
 }
 
+void ajout_ville(int code_postal){
+    //fonction ajout_ville
+}
 
 int main() {
     //Création adresse première ville et centrale
@@ -373,5 +376,3 @@ int main() {
 
     return 0;
 }
-
-//30/10/2022 18:24
