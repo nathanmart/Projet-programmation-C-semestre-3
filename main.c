@@ -327,9 +327,7 @@ int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
  */
 int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
 
-    //Création d'une nouvelle connexion
 
-    //On vient se placer à la dernière connexion
     //La nouvelle connexion est donc ajoutée à la fin de la liste
     PTligneElectrique pligne = pcentrale->villeDependante;
     while(pligne->ligneSuivante != NULL) pligne = pligne->ligneSuivante;
