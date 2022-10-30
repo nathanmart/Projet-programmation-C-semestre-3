@@ -326,14 +326,6 @@ int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
  *      2 --> Modification d'une connexion existante
  */
 int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
-    //Vérification de la puissance restante de la centrale
-    if (!check_puissance_suffisante(pcentrale, puissance)) return 0;
-
-    //Si la connexion existe déja, on additionne les deux puissance
-    if (check_existance_connexion(pcentrale, pville)){
-        additionner_connexion(pcentrale, pville, puissance);
-        return 2;
-    }
 
     //Création d'une nouvelle connexion
 
