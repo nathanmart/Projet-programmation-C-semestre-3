@@ -71,9 +71,9 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
  * Cette fonction est utile seulement pour le développement.
  * Elle créé 3 centrales et 3 villes.
  *
- * Les connexions entre ces élements sont les suivants:
+ * Les connexions entre ces élements sont les suivants :
  * La centrale 1 et la ville 1 simplement reliées entre elles
- * La centrale 2 reliée aux ville 2 et 3
+ * La centrale 2 reliée aux villes 2 et 3
  * La centrale 3 relié à la ville 3
  */
 void creation_test(){
@@ -193,7 +193,7 @@ void creation_test(){
 
 /*
  * Cette fonction est utile seulement pour le développement
- * Elle permet d'afficher dands la console l'ensemble des villes et des centrales, ainsi que les connexions avec
+ * Elle permet d'afficher dans la console l'ensemble des villes et des centrales, ainsi que les connexions avec
  * les différentes valeurs
  */
 void affichage_general(){
@@ -259,8 +259,8 @@ void affichage_general(){
 
 /*
  * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
- * Renvoie 1 si il reste assez de puissance
- * Renvoi 0 si il n'y a plus assez de puissance
+ * Renvoie 1 s'il reste assez de puissance
+ * Renvoi 0 s'il n'y a plus assez de puissance
  */
 int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
     if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
@@ -320,7 +320,7 @@ int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
 
 /*
  * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
- * Signification valeur de retour:
+ * Signification valeur de retour :
  *      0 --> Pas assez de puissance disponible dans la centrale
  *      1 --> Nouvelle connexion créé
  *      2 --> Modification d'une connexion existante
@@ -373,3 +373,5 @@ int main() {
 
     return 0;
 }
+
+//30/10/2022 18:24
