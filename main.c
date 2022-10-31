@@ -408,6 +408,37 @@ int ajouter_ville(int code_postal){
     return 1;
 }
 
+/*
+ * Cette fonction permet de supprimer une connexion ligne/centrale
+ * Renvoi 0 si la connexion n'existe pas
+ * Renvoi 1 si la connexion existe
+ */
+int supprimer_connexion(PTcentrale pcentrale, PTville pville){
+    //Vérification existance connexion
+    if (!check_existance_connexion(pcentrale, pville)) return 0;
+
+    PTligneElectrique pligne = pcentrale->villeDependante;
+
+    //Cas où il n'y a qu'une seule connexion sur cette centrale
+    if (! pligne->ligneSuivante){
+        pligne->villeDesservie = NULL;
+        pligne->puissance = 0;
+        return 1;
+    }
+    //Cas où la connexion à supprimer est la première
+    else if (pligne->villeDesservie == pville){
+        pcentrale->villeDependante = pligne->ligneSuivante;
+        return 1;
+    }
+    //Autres cas
+    else {
+        //Se place sur la ligne précédent la suppression
+        while (pligne->ligneSuivante->villeDesservie != pville) pligne = pligne->ligneSuivante;
+        pligne->ligneSuivante = pligne->ligneSuivante->ligneSuivante;
+        return 1;
+    }
+
+}
 
 
 int main() {
@@ -415,10 +446,10 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    //creation_test();
-    //affichage_general();
+    creation_test();
+    affichage_general();
 
-    printf("%d", ajouter_ville(10));
+    supprimer_connexion(pPremiereCentrale->ptsuivant, pPremiereVille->villeSuivante->villeSuivante);
 
     affichage_general();
 
