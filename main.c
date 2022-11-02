@@ -309,10 +309,10 @@ int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
  * Renvoie 1 si elle existe
  * Renvoie 0 si elle n'existe pas
  */
-int check_existance_connexion(PTcentrale pcentrale, PTville pvile){
+int check_existance_connexion(PTcentrale pcentrale, PTville pville){
     PTligneElectrique pligne = pcentrale->villeDependante;
     while (pligne && pligne->villeDesservie){
-        if (pligne->villeDesservie == pvile) return 1;
+        if (pligne->villeDesservie == pville) return 1;
         pligne = pligne->ligneSuivante;
     }
     return 0;
@@ -324,10 +324,10 @@ int check_existance_connexion(PTcentrale pcentrale, PTville pvile){
  * Renvoie 1 si tout s'est bien passé
  * Renvoie 0 en cas d'erreur
  */
-int additionner_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
+int additionner_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     PTligneElectrique pligne = pcentrale->villeDependante;
     while (pligne){
-        if (pligne->villeDesservie == pvile){
+        if (pligne->villeDesservie == pville){
             pligne->puissance += puissance;
             return 1;
         }
@@ -342,10 +342,10 @@ int additionner_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
  * Renvoie 1 si tout s'est bien passé
  * Renvoie 0 en cas d'erreur
  */
-int modifier_connexion(PTcentrale pcentrale, PTville pvile, int puissance){
+int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     PTligneElectrique pligne = pcentrale->villeDependante;
     while (pligne){
-        if (pligne->villeDesservie == pvile){
+        if (pligne->villeDesservie == pville){
             pligne->puissance = puissance;
             return 1;
         }
