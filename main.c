@@ -54,7 +54,9 @@ int nbville = 0;
 int nbcentrales = 0;
 
 
-
+/*
+ * Cette fonction renvoi l'adresse d'une centrale
+ */
 PTcentrale get_adresse_centrale(int code_central){
     PTcentrale pcentrale = pPremiereCentrale;
     while (pcentrale){
@@ -65,6 +67,9 @@ PTcentrale get_adresse_centrale(int code_central){
 }
 
 
+/*
+ * Cette fonction renvoie l'adresse d'une ville
+ */
 PTville get_adresse_ville(int code_postal){
     PTville pville = pPremiereVille;
     while (pville){
