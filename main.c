@@ -408,6 +408,7 @@ int ajouter_ville(int code_postal){
     return 1;
 }
 
+
 /*
  * Cette fonction permet de supprimer une connexion ligne/centrale
  * Renvoi 0 si la connexion n'existe pas
@@ -437,7 +438,53 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
         pligne->ligneSuivante = pligne->ligneSuivante->ligneSuivante;
         return 1;
     }
+}
 
+
+/*
+ * Cette fonction permet de supprimer une ville
+ * Renvoi 0 si la ville n'existe pas
+ * Renvoi 1 si la ville a bien été supprimée
+ */
+int supprimer_ville(int code_postal){
+    //Vérification de l'existence de la ville
+    if(! check_code_postal_utilise(code_postal)) return 0;
+
+
+
+    //On supprime toutes les connexions que cette ville pourrait avoir
+    /*
+    PTcentrale pcentrale = pPremiereCentrale;
+    while (pcentrale){
+        supprimer_connexion()
+
+    }
+    */
+
+    PTville pville = pPremiereVille;
+
+    //Cas où il n'y a qu'une seule ville
+    if (! pville->villeSuivante){
+        //On créer une nouvelle adresse pour pPremiereVille, et on l'utilise comme bidon
+        pPremiereVille = (PTville) malloc(sizeof (Tville));
+        pPremiereVille->codePostal = -1;
+        pPremiereVille->villeSuivante = NULL;
+        return 1;
+    }
+        //Cas où la ville à supprimer est la première
+    else if(pville->codePostal == code_postal){
+        //On change l'adresse du pointeur pPremiereVille
+        pPremiereVille = pville->villeSuivante;
+        nbville--;
+        return 1;
+    }
+        //Autres cas
+    else {
+        //Se place sur la ville précédent la suppression
+        while (pville->villeSuivante->codePostal != code_postal) pville = pville->villeSuivante;
+        pville->villeSuivante = pville->villeSuivante->villeSuivante;
+        return 1;
+    }
 }
 
 
@@ -449,7 +496,10 @@ int main() {
     creation_test();
     affichage_general();
 
-    supprimer_connexion(pPremiereCentrale->ptsuivant, pPremiereVille->villeSuivante->villeSuivante);
+    supprimer_ville(4);
+    supprimer_ville(3);
+   // supprimer_ville(2);
+    supprimer_ville(1);
 
     affichage_general();
 
