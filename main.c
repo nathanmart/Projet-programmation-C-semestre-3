@@ -486,6 +486,7 @@ int supprimer_ville(int code_postal){
         pPremiereVille = (PTville) malloc(sizeof (Tville));
         pPremiereVille->codePostal = -1;
         pPremiereVille->villeSuivante = NULL;
+        nbville--;
         return 1;
     }
         //Cas où la ville à supprimer est la première
@@ -500,6 +501,7 @@ int supprimer_ville(int code_postal){
         //Se place sur la ville précédent la suppression
         while (pville->villeSuivante->codePostal != code_postal) pville = pville->villeSuivante;
         pville->villeSuivante = pville->villeSuivante->villeSuivante;
+        nbville--;
         return 1;
     }
 }
@@ -514,6 +516,9 @@ int main() {
     affichage_general();
 
     supprimer_ville(1);
+    supprimer_ville(2);
+    supprimer_ville(3);
+    supprimer_ville(4);
 
     affichage_general();
 
