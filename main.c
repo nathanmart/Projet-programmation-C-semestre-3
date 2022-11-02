@@ -54,6 +54,27 @@ int nbville = 0;
 int nbcentrales = 0;
 
 
+
+PTcentrale get_adresse_centrale(int code_central){
+    PTcentrale pcentrale = pPremiereCentrale;
+    while (pcentrale){
+        if (pcentrale->codeCentrale == code_central) return pcentrale;
+        pcentrale = pcentrale->ptsuivant;
+    }
+    return 0;
+}
+
+
+PTville get_adresse_ville(int code_postal){
+    PTville pville = pPremiereVille;
+    while (pville){
+        if (pville->codePostal == code_postal) return pville;
+        pville = pville->villeSuivante;
+    }
+    return 0;
+}
+
+
 /*
  * Cette fonction renvoie la puissance restrance d'une centrale
  */
@@ -450,16 +471,12 @@ int supprimer_ville(int code_postal){
     //Vérification de l'existence de la ville
     if(! check_code_postal_utilise(code_postal)) return 0;
 
-
-
     //On supprime toutes les connexions que cette ville pourrait avoir
-    /*
     PTcentrale pcentrale = pPremiereCentrale;
     while (pcentrale){
-        supprimer_connexion()
-
+        supprimer_connexion(pcentrale, get_adresse_ville(code_postal));
+        pcentrale = pcentrale->ptsuivant;
     }
-    */
 
     PTville pville = pPremiereVille;
 
@@ -496,9 +513,6 @@ int main() {
     creation_test();
     affichage_general();
 
-    supprimer_ville(4);
-    supprimer_ville(3);
-   // supprimer_ville(2);
     supprimer_ville(1);
 
     affichage_general();
