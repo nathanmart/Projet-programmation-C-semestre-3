@@ -293,6 +293,138 @@ void affichage_general(){
 }
 
 
+/*
+ * Cette fonction vérifie si le code de la centrale est déjà utilisée
+ * Renvoie 0 si il n'est pas utilisé
+ * Renvoie 1 si il est utilisé
+ */
+int check_code_centrale_utilise(int code_centrale){
+    PTcentrale pcentrale = pPremiereCentrale;
+
+    while(pcentrale && nbcentrales){
+        if(pcentrale->codeCentrale == code_centrale) return 1;
+        pcentrale = pcentrale->ptsuivant;
+    }
+    return 0;
+}
+
+/*
+ * Cette fonction vérifie si la centrale existe
+ * Renvoie 0 si elle n'existe pas
+ * Renvoie 1 si elle existe
+ */
+int check_existance_centrale(int code_centrale){
+    PTcentrale pcentrale = pPremiereCentrale;
+
+    while(pcentrale && nbcentrales){
+        if(pcentrale->codeCentrale == code_centrale) return 1;
+        pcentrale = pcentrale->ptsuivant;
+    }
+    return 0;
+}
+
+/*
+ * Cette fonction permet de modifier une centrale
+ * Renvoie 0 si erreur
+ * Renvoie 1 si tout est bon
+ * Renvoie 2 si la puissance est insufisante
+ */
+int modifier_centrale(int code_centrale, int puissance_max){
+    if(! check_existance_centrale(code_centrale)) return 0;
+    PTcentrale pcentrale = get_adresse_centrale(code_centrale);
+    if(puissance_max < pcentrale->puissance_max - get_puissance_restante_centrale(get_adresse_centrale(code_centrale))) return 2;
+
+    pcentrale = pPremiereCentrale;
+
+    while(pcentrale){
+        if(pcentrale->codeCentrale == code_centrale){
+            pcentrale->puissance_max = puissance_max;
+            return 1;
+        }
+        pcentrale = pcentrale->ptsuivant;
+    }
+
+    return 0;
+}
+
+/*
+ * Cette fonction permet d'ajouter une centrale
+ * Renvoie 0 si erreur
+ * Renvoie 1 si tout est bon
+ * Renvoie 2 si existe déjà
+ */
+int ajout_centrale(int code_centrale, int puissance_max){
+    if(check_code_centrale_utilise(code_centrale)) return 0;
+
+    PTcentrale pcentrale = pPremiereCentrale;
+
+    if(nbcentrales){
+        while(pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
+
+        pcentrale->ptsuivant = (PTcentrale)malloc(sizeof (Tcentrale));
+        pcentrale->ptsuivant->ptprecedent = pcentrale;
+        pcentrale = pcentrale->ptsuivant;
+    }
+    else{
+        pcentrale->ptprecedent = NULL;
+    }
+
+    pcentrale->villeDependante = NULL;
+    pcentrale->ptsuivant = NULL;
+    pcentrale->codeCentrale = code_centrale;
+    pcentrale->puissance_max = puissance_max;
+    nbcentrales ++;
+
+    return 1;
+}
+
+/*
+ * Cette fonction permet de supprimer une centrale
+ * Renvoie 0 si la centrale n'existe pas
+ * Renvoie 1 si tout est bon
+ */
+int supprimer_centrale(int code_centrale){
+    if(! check_existance_centrale(code_centrale)) return 0;
+
+    PTcentrale pcentrale = pPremiereCentrale;
+
+    // Dans le cas où il n'y a q'une seule centrale
+    if(! pcentrale->ptsuivant){
+        pcentrale->ptprecedent = NULL;
+        pcentrale->ptsuivant = NULL;
+        pcentrale->codeCentrale = 0;
+        pcentrale->puissance_max = 0;
+        pcentrale->villeDependante = NULL;
+        nbcentrales --;
+        return 1;
+    }
+
+        // Dans le cas où la centrale supprimée est la première
+    else if(pcentrale->codeCentrale == code_centrale){
+        pPremiereCentrale = pcentrale->ptsuivant;
+        nbcentrales --;
+        return 1;
+    }
+    // Dans le cas où la centrale supprimée est la dernière
+    while(pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
+    if(pcentrale->codeCentrale == code_centrale) pcentrale->ptprecedent->ptsuivant = NULL;
+
+    else {
+        pcentrale = pPremiereCentrale;
+        while (pcentrale->ptsuivant) {
+            if (pcentrale->codeCentrale == code_centrale) {
+                pcentrale->ptsuivant->ptprecedent = pcentrale;
+                pcentrale->ptprecedent->ptsuivant = pcentrale->ptsuivant;
+                nbcentrales--;
+                return 1;
+            }
+            pcentrale = pcentrale->ptsuivant;
+        }
+    }
+}
+
+
+
 
 /*
  * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
@@ -520,10 +652,7 @@ int main() {
     creation_test();
     affichage_general();
 
-    supprimer_ville(1);
-    supprimer_ville(2);
-    supprimer_ville(3);
-    supprimer_ville(4);
+    printf("\n%d\n", modifier_centrale(2, 1301));
 
     affichage_general();
 
