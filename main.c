@@ -5,13 +5,14 @@
 //Automne 2022
 
 #include <stdio.h>
-#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 
 //Structure des villes
 typedef struct ville {
     int codePostal;
+    char nom[30];
     struct ville * villeSuivante;
 } Tville;
 //Pointeur associé à la structure
@@ -33,6 +34,7 @@ typedef TlignesElectrique * PTligneElectrique;
 //Structure des centrales electriques
 typedef struct centrale{
     int codeCentrale;
+    char nom[30];
     int puissance_max;
     // Pointeur sur la liste des lignes
     PTligneElectrique villeDependante;
@@ -53,7 +55,6 @@ PTville pPremiereVille;
 int nbville = 0;
 int nbcentrales = 0;
 
-
 /*
  * Cette fonction renvoi l'adresse d'une centrale
  */
@@ -66,7 +67,6 @@ PTcentrale get_adresse_centrale(int code_central){
     return 0;
 }
 
-
 /*
  * Cette fonction renvoie l'adresse d'une ville
  */
@@ -78,7 +78,6 @@ PTville get_adresse_ville(int code_postal){
     }
     return 0;
 }
-
 
 /*
  * Cette fonction renvoie la puissance restrance d'une centrale
@@ -94,8 +93,6 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
 
     return puissance_restante;
 }
-
-
 
 /*
  * Cette fonction est utile seulement pour le développement.
@@ -227,7 +224,6 @@ void creation_test(){
     pcentrale->villeDependante->ligneSuivante = NULL;
 }
 
-
 /*
  * Cette fonction est utile seulement pour le développement
  * Elle permet d'afficher dans la console l'ensemble des villes et des centrales, ainsi que les connexions avec
@@ -261,7 +257,7 @@ void affichage_general(){
             pcentrale = pcentrale->ptsuivant;
         }
 
-        printf("Code postal: %d, puissance recu: %d\n", pville->codePostal, puissance_recu);
+        printf("Nom: %s, Code postal: %d, puissance recu: %d\n", pville->nom, pville->codePostal, puissance_recu);
         pville = pville->villeSuivante;
     }
     printf("************************************************************\n");
@@ -274,7 +270,7 @@ void affichage_general(){
     printf("Affichage des centrales:\n\n");
     pcentrale = pPremiereCentrale;
     while (pcentrale && nbcentrales){
-        printf("Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->codeCentrale, pcentrale->puissance_max,
+        printf("Nom: %s, Centrale numero %d, de puissance %dMG, il reste %dMG disponible\n", pcentrale->nom, pcentrale->codeCentrale, pcentrale->puissance_max,
                get_puissance_restante_centrale(pcentrale));
         printf("Les connexions sont les suivantes:\n");
         pligne = pcentrale->villeDependante;
@@ -291,7 +287,6 @@ void affichage_general(){
 
     printf("************************************************************\n");
 }
-
 
 /*
  * Cette fonction vérifie si le code de la centrale est déjà utilisée
@@ -353,7 +348,7 @@ int modifier_centrale(int code_centrale, int puissance_max){
  * Renvoie 1 si tout est bon
  * Renvoie 2 si existe déjà
  */
-int ajout_centrale(int code_centrale, int puissance_max){
+int ajout_centrale(int code_centrale, int puissance_max, char nom_centrale[]){
     if(check_code_centrale_utilise(code_centrale)) return 0;
 
     PTcentrale pcentrale = pPremiereCentrale;
@@ -370,6 +365,7 @@ int ajout_centrale(int code_centrale, int puissance_max){
     }
 
     pcentrale->villeDependante = NULL;
+    strcpy(pcentrale->nom, nom_centrale);
     pcentrale->ptsuivant = NULL;
     pcentrale->codeCentrale = code_centrale;
     pcentrale->puissance_max = puissance_max;
@@ -423,9 +419,6 @@ int supprimer_centrale(int code_centrale){
     }
 }
 
-
-
-
 /*
  * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
  * Renvoie 1 si il reste assez de puissance
@@ -450,7 +443,6 @@ int check_existance_connexion(PTcentrale pcentrale, PTville pville){
     return 0;
 }
 
-
 /*
  * Cette fonction additionne une nouvelle puissance avec celle existante d'une connexion
  * Renvoie 1 si tout s'est bien passé
@@ -468,7 +460,6 @@ int additionner_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     return 0;
 }
 
-
 /*
  * Cette fonction change la puissance d'une connexion existante
  * Renvoie 1 si tout s'est bien passé
@@ -485,7 +476,6 @@ int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     }
     return 0;
 }
-
 
 /*
  * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
@@ -544,7 +534,7 @@ int check_code_postal_utilise(int code_postal){
  * Renvoi 0 si le code postal est déja utilisé
  * Renvoi 1 si la ville a bien été créée
  */
-int ajouter_ville(int code_postal){
+int ajouter_ville(int code_postal, char nom_ville[]){
     //Vérification code postal
     if (check_code_postal_utilise(code_postal)) return 0;
 
@@ -560,12 +550,12 @@ int ajouter_ville(int code_postal){
     }
 
     pville->codePostal = code_postal;
+    strcpy(pville->nom, nom_ville);
     pville->villeSuivante = NULL;
     nbville++;
 
     return 1;
 }
-
 
 /*
  * Cette fonction permet de supprimer une connexion ligne/centrale
@@ -597,7 +587,6 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
         return 1;
     }
 }
-
 
 /*
  * Cette fonction permet de supprimer une ville
@@ -643,16 +632,17 @@ int supprimer_ville(int code_postal){
     }
 }
 
-
 int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    creation_test();
-    affichage_general();
-
-    printf("\n%d\n", modifier_centrale(2, 1301));
+    ajouter_ville(56100, "Lorient");
+    ajouter_ville(56000, "Vannes");
+    ajouter_ville(56880, "Ploeren");
+    ajout_centrale(1, 1673, "Paris");
+    ajout_centrale(2, 2891, "Strasbourg");
+    ajout_centrale(3, 1345, "Lyon");
 
     affichage_general();
 
