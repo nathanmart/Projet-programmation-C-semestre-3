@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+////////////////////////////////////////////// STRUCTURES ///////////////////////////////////////////
 
 //Structure des villes
 typedef struct ville {
@@ -45,6 +46,8 @@ typedef struct centrale{
 //Pointeur associé à la structure
 typedef Tcentrale * PTcentrale;
 
+////////////////////////////////////////////// VARIABLES GLOBALES ///////////////////////////////////
+
 //On utilise ici des variables globales
 
 //Création pointeurs vers les centrales et les villes
@@ -54,6 +57,8 @@ PTville pPremiereVille;
 //Compteur nombre ville && centrale
 int nbville = 0;
 int nbcentrales = 0;
+
+/////////////////////////////////////////// FONCTIONS AQUISITION ////////////////////////////////////
 
 /*
  * Cette fonction renvoi l'adresse d'une centrale
@@ -94,135 +99,7 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
     return puissance_restante;
 }
 
-/*
- * Cette fonction est utile seulement pour le développement.
- * Elle créé 3 centrales et 3 villes.
- *
- * Les connexions entre ces élements sont les suivants :
- * La centrale 1 et la ville 1 simplement reliées entre elles
- * La centrale 2 reliée aux villes 2 et 3
- * La centrale 3 relié à la ville 3
- */
-void creation_test(){
-    //Création pointeur temporaire
-    PTcentrale pcentrale;
-    PTville pville;
-    PTligneElectrique pligne;
-
-
-    /*
-     * Création des villes
-     */
-
-    //Création première ville
-    pville = pPremiereVille;
-    pville->codePostal = 1;
-    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
-    nbville++;
-
-    //Création deuxieme ville
-    pville = pville->villeSuivante;
-    pville->codePostal = 2;
-    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
-    nbville++;
-
-    //Création troisieme ville
-    pville = pville->villeSuivante;
-    pville->codePostal = 3;
-    pville->villeSuivante = (PTville) malloc(sizeof (Tville));
-    nbville++;
-
-    //Création quatrieme ville
-    pville = pville->villeSuivante;
-    pville->codePostal = 4;
-    pville->villeSuivante = NULL;
-    nbville++;
-
-
-    /*
-     * Création des centrales
-     */
-
-    //Création première centrale
-    pcentrale = pPremiereCentrale;
-    pcentrale->codeCentrale = 1;
-    pcentrale->puissance_max = 1000;
-    pcentrale->ptprecedent = NULL;
-    pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
-    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-    pcentrale->villeDependante->villeDesservie = NULL;
-    pcentrale->villeDependante->puissance = 0;
-    nbcentrales++;
-
-    //Création deuxième centrale
-    pcentrale->ptsuivant->ptprecedent = pcentrale;
-    pcentrale = pPremiereCentrale->ptsuivant;
-    pcentrale->codeCentrale = 2;
-    pcentrale->puissance_max = 1500;
-    pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
-    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-    pcentrale->villeDependante->villeDesservie = NULL;
-    pcentrale->villeDependante->puissance = 0;
-    nbcentrales++;
-
-    //Création troisième centrale
-    pcentrale->ptsuivant->ptprecedent = pcentrale;
-    pcentrale = pcentrale->ptsuivant;
-    pcentrale->codeCentrale = 3;
-    pcentrale->puissance_max = 2000;
-    pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
-    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-    pcentrale->villeDependante->villeDesservie = NULL;
-    pcentrale->villeDependante->puissance = 0;
-    nbcentrales++;
-
-    //Création quatrième centrale
-    pcentrale->ptsuivant->ptprecedent = pcentrale;
-    pcentrale = pcentrale->ptsuivant;
-    pcentrale->codeCentrale = 4;
-    pcentrale->puissance_max = 5000;
-    pcentrale->ptsuivant = NULL;
-    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-    pcentrale->villeDependante->villeDesservie = NULL;
-    pcentrale->villeDependante->puissance = 0;
-    nbcentrales++;
-
-
-    /*
-     * Création des liens
-     */
-
-    //Lien centrale 1 <-> ville 1
-    pcentrale = pPremiereCentrale;
-
-    pville = pPremiereVille;
-    pcentrale->villeDependante->villeDesservie = pville;
-    pcentrale->villeDependante->puissance = 1000;
-    pcentrale->villeDependante->ligneSuivante = NULL;
-
-
-    //Lien centrale 2 <-> ville 2 & 3
-    pcentrale = pcentrale->ptsuivant;
-
-    pville = pville->villeSuivante;
-    pcentrale->villeDependante->villeDesservie = pville;
-    pcentrale->villeDependante->puissance = 900;
-    pcentrale->villeDependante->ligneSuivante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
-
-
-    pville = pville->villeSuivante;
-    pligne = pcentrale->villeDependante->ligneSuivante;
-    pligne->villeDesservie = pville;
-    pligne->puissance = 400;
-    pligne->ligneSuivante = NULL;
-
-
-    //Lien centrale 3 <-> ville 3
-    pcentrale = pcentrale->ptsuivant;
-    pcentrale->villeDependante->villeDesservie = pville;
-    pcentrale->villeDependante->puissance = 1500;
-    pcentrale->villeDependante->ligneSuivante = NULL;
-}
+/////////////////////////////////////////// AFFICHAGE /////////////////////////////////////////////
 
 /*
  * Cette fonction est utile seulement pour le développement
@@ -288,6 +165,8 @@ void affichage_general(){
     printf("************************************************************\n");
 }
 
+/////////////////////////////////////////// FONCTIONS CHECK //////////////////////////////////////
+
 /*
  * Cette fonction vérifie si le code de la centrale est déjà utilisée
  * Renvoie 0 si il n'est pas utilisé
@@ -319,28 +198,44 @@ int check_existance_centrale(int code_centrale){
 }
 
 /*
- * Cette fonction permet de modifier une centrale
- * Renvoie 0 si erreur
- * Renvoie 1 si tout est bon
- * Renvoie 2 si la puissance est insufisante
+ * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
+ * Renvoie 1 si il reste assez de puissance
+ * Renvoi 0 si il n'y a plus assez de puissance
  */
-int modifier_centrale(int code_centrale, int puissance_max){
-    if(! check_existance_centrale(code_centrale)) return 0;
-    PTcentrale pcentrale = get_adresse_centrale(code_centrale);
-    if(puissance_max < pcentrale->puissance_max - get_puissance_restante_centrale(get_adresse_centrale(code_centrale))) return 2;
+int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
+    if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
+    else return 0;
+}
 
-    pcentrale = pPremiereCentrale;
-
-    while(pcentrale){
-        if(pcentrale->codeCentrale == code_centrale){
-            pcentrale->puissance_max = puissance_max;
-            return 1;
-        }
-        pcentrale = pcentrale->ptsuivant;
+/*
+ * Vérifie si une connexion entre une centrale et une ville existe
+ * Renvoie 1 si elle existe
+ * Renvoie 0 si elle n'existe pas
+ */
+int check_existance_connexion(PTcentrale pcentrale, PTville pville){
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while (pligne && pligne->villeDesservie){
+        if (pligne->villeDesservie == pville) return 1;
+        pligne = pligne->ligneSuivante;
     }
-
     return 0;
 }
+
+/*
+ * Cette fonction vérifie si un code postal est déja utilisé pour une ville
+ * Renvoie 0 si il n'est pas utilisé
+ * Renvoi 1 si il est déja utilisé
+ */
+int check_code_postal_utilise(int code_postal){
+    PTville pville = pPremiereVille;
+    while (pville && nbville){
+        if (pville->codePostal == code_postal) return 1;
+        pville = pville->villeSuivante;
+    }
+    return 0;
+}
+
+/////////////////////////////////////////// FONCTIONS CENTRALE ///////////////////////////////
 
 /*
  * Cette fonction permet d'ajouter une centrale
@@ -403,7 +298,10 @@ int supprimer_centrale(int code_centrale){
     }
     // Dans le cas où la centrale supprimée est la dernière
     while(pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
-    if(pcentrale->codeCentrale == code_centrale) pcentrale->ptprecedent->ptsuivant = NULL;
+    if(pcentrale->codeCentrale == code_centrale){
+        pcentrale->ptprecedent->ptsuivant = NULL;
+        return 1;
+    }
 
     else {
         pcentrale = pPremiereCentrale;
@@ -420,28 +318,30 @@ int supprimer_centrale(int code_centrale){
 }
 
 /*
- * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
- * Renvoie 1 si il reste assez de puissance
- * Renvoi 0 si il n'y a plus assez de puissance
+ * Cette fonction permet de modifier une centrale
+ * Renvoie 0 si erreur
+ * Renvoie 1 si tout est bon
+ * Renvoie 2 si la puissance est insufisante
  */
-int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
-    if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
-    else return 0;
-}
+int modifier_centrale(int code_centrale, int puissance_max){
+    if(! check_existance_centrale(code_centrale)) return 0;
+    PTcentrale pcentrale = get_adresse_centrale(code_centrale);
+    if(puissance_max < pcentrale->puissance_max - get_puissance_restante_centrale(get_adresse_centrale(code_centrale))) return 2;
 
-/*
- * Vérifie si une connexion entre une centrale et une ville existe
- * Renvoie 1 si elle existe
- * Renvoie 0 si elle n'existe pas
- */
-int check_existance_connexion(PTcentrale pcentrale, PTville pville){
-    PTligneElectrique pligne = pcentrale->villeDependante;
-    while (pligne && pligne->villeDesservie){
-        if (pligne->villeDesservie == pville) return 1;
-        pligne = pligne->ligneSuivante;
+    pcentrale = pPremiereCentrale;
+
+    while(pcentrale){
+        if(pcentrale->codeCentrale == code_centrale){
+            pcentrale->puissance_max = puissance_max;
+            return 1;
+        }
+        pcentrale = pcentrale->ptsuivant;
     }
+
     return 0;
 }
+
+/////////////////////////////////////////// FONCTIONS CONNEXION //////////////////////////////
 
 /*
  * Cette fonction additionne une nouvelle puissance avec celle existante d'une connexion
@@ -453,23 +353,6 @@ int additionner_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     while (pligne){
         if (pligne->villeDesservie == pville){
             pligne->puissance += puissance;
-            return 1;
-        }
-        pligne = pligne->ligneSuivante;
-    }
-    return 0;
-}
-
-/*
- * Cette fonction change la puissance d'une connexion existante
- * Renvoie 1 si tout s'est bien passé
- * Renvoie 0 en cas d'erreur
- */
-int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
-    PTligneElectrique pligne = pcentrale->villeDependante;
-    while (pligne){
-        if (pligne->villeDesservie == pville){
-            pligne->puissance = puissance;
             return 1;
         }
         pligne = pligne->ligneSuivante;
@@ -516,18 +399,54 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
 }
 
 /*
- * Cette fonction vérifie si un code postal est déja utilisé pour une ville
- * Renvoie 0 si il n'est pas utilisé
- * Renvoi 1 si il est déja utilisé
+ * Cette fonction permet de supprimer une connexion ligne/centrale
+ * Renvoi 0 si la connexion n'existe pas
+ * Renvoi 1 si la connexion existe
  */
-int check_code_postal_utilise(int code_postal){
-    PTville pville = pPremiereVille;
-    while (pville && nbville){
-        if (pville->codePostal == code_postal) return 1;
-        pville = pville->villeSuivante;
+int supprimer_connexion(PTcentrale pcentrale, PTville pville){
+    //Vérification existance connexion
+    if (!check_existance_connexion(pcentrale, pville)) return 0;
+
+    PTligneElectrique pligne = pcentrale->villeDependante;
+
+    //Cas où il n'y a qu'une seule connexion sur cette centrale
+    if (! pligne->ligneSuivante){
+        pligne->villeDesservie = NULL;
+        pligne->puissance = 0;
+        return 1;
+    }
+        //Cas où la connexion à supprimer est la première
+    else if (pligne->villeDesservie == pville){
+        pcentrale->villeDependante = pligne->ligneSuivante;
+        return 1;
+    }
+        //Autres cas
+    else {
+        //Se place sur la ligne précédent la suppression
+        while (pligne->ligneSuivante->villeDesservie != pville) pligne = pligne->ligneSuivante;
+        pligne->ligneSuivante = pligne->ligneSuivante->ligneSuivante;
+        return 1;
+    }
+}
+
+/*
+ * Cette fonction change la puissance d'une connexion existante
+ * Renvoie 1 si tout s'est bien passé
+ * Renvoie 0 en cas d'erreur
+ */
+int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    while (pligne){
+        if (pligne->villeDesservie == pville){
+            pligne->puissance = puissance;
+            return 1;
+        }
+        pligne = pligne->ligneSuivante;
     }
     return 0;
 }
+
+/////////////////////////////////////////// FONCTIONS VILLES ////////////////////////////////
 
 /*
  * Cette fonction permet d'ajouter une ville
@@ -555,37 +474,6 @@ int ajouter_ville(int code_postal, char nom_ville[]){
     nbville++;
 
     return 1;
-}
-
-/*
- * Cette fonction permet de supprimer une connexion ligne/centrale
- * Renvoi 0 si la connexion n'existe pas
- * Renvoi 1 si la connexion existe
- */
-int supprimer_connexion(PTcentrale pcentrale, PTville pville){
-    //Vérification existance connexion
-    if (!check_existance_connexion(pcentrale, pville)) return 0;
-
-    PTligneElectrique pligne = pcentrale->villeDependante;
-
-    //Cas où il n'y a qu'une seule connexion sur cette centrale
-    if (! pligne->ligneSuivante){
-        pligne->villeDesservie = NULL;
-        pligne->puissance = 0;
-        return 1;
-    }
-    //Cas où la connexion à supprimer est la première
-    else if (pligne->villeDesservie == pville){
-        pcentrale->villeDependante = pligne->ligneSuivante;
-        return 1;
-    }
-    //Autres cas
-    else {
-        //Se place sur la ligne précédent la suppression
-        while (pligne->ligneSuivante->villeDesservie != pville) pligne = pligne->ligneSuivante;
-        pligne->ligneSuivante = pligne->ligneSuivante->ligneSuivante;
-        return 1;
-    }
 }
 
 /*
@@ -631,6 +519,8 @@ int supprimer_ville(int code_postal){
         return 1;
     }
 }
+
+/////////////////////////////////////////// MAIN ///////////////////////////////////////////
 
 int main() {
     //Création adresse première ville et centrale
