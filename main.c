@@ -50,6 +50,7 @@ typedef Tcentrale * PTcentrale;
 //Création pointeurs vers les centrales et les villes
 PTcentrale pPremiereCentrale;
 PTville pPremiereVille;
+FILE* sauvegarde = NULL;
 
 //Compteur nombre ville && centrale
 int nbville = 0;
@@ -643,6 +644,49 @@ int supprimer_ville(int code_postal){
     }
 }
 
+/*
+ * Cette fonction créée une sauvegarde des données
+ * Renvoie 0 s'il manque une information
+ * Renvoie 1 si tout est bon
+ */
+int sauvegarde_fichier(){
+    PTcentrale pcentrale = pPremiereCentrale;
+    PTville pville = pPremiereVille;
+    PTligneElectrique pligne = NULL;
+
+    sauvegarde = fopen("sauvegarde.txt", "w");
+
+    if(! sauvegarde) return 0;
+
+    fprintf(sauvegarde, "%d\n", nbville);
+
+    while(pville){
+        fprintf(sauvegarde, "%s %d\n", pville->nom, pville->codePostal);
+        pville = pville->villeSuivante;
+    }
+
+    fprintf(sauvegarde, "\n%d\n", nbcentrales);
+
+    while(pcentrale){
+        fprintf(sauvegarde, "%s %d %d\n", pcentrale->nom, pcentrale->codeCentrale, pcentrale->puissance_max);
+        pcentrale = pcentrale->ptsuivant;
+    }
+
+    pcentrale = pPremiereCentrale;
+    fprintf(sauvegarde, "\n");
+
+    while(pcentrale) {
+        pligne = pcentrale->villeDependante;
+        if (!pligne->villeDesservie) return 0;
+        while (pligne) {
+            pville = pligne->villeDesservie;
+            fprintf(sauvegarde, "%d %d %d\n", pcentrale->codeCentrale, pville->codePostal, pligne->puissance);
+            pligne = pligne->ligneSuivante;
+        }
+        pcentrale = pcentrale->ptsuivant;
+    }
+}
+
 int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
@@ -656,9 +700,12 @@ int main() {
     ajout_centrale(3, 1345, "Lyon");
     ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 1000);
     ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56880), 500);
-
+    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56000), 500);
+    ajouter_connexion(get_adresse_centrale(3), get_adresse_ville(56000), 500);
 
     affichage_general();
+
+    sauvegarde_fichier();
 
     return 0;
 }
