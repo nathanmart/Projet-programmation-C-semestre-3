@@ -364,11 +364,14 @@ int ajout_centrale(int code_centrale, int puissance_max, char nom_centrale[]){
         pcentrale->ptprecedent = NULL;
     }
 
-    pcentrale->villeDependante = NULL;
     strcpy(pcentrale->nom, nom_centrale);
     pcentrale->ptsuivant = NULL;
     pcentrale->codeCentrale = code_centrale;
     pcentrale->puissance_max = puissance_max;
+    pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof (TlignesElectrique));
+    pcentrale->villeDependante->puissance = 0;
+    pcentrale->villeDependante->ligneSuivante = NULL;
+    pcentrale->villeDependante->villeDesservie = NULL;
     nbcentrales ++;
 
     return 1;
@@ -496,9 +499,17 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
 
     //Création d'une nouvelle connexion
 
+    //Si la centrale à aucune connexion
+    PTligneElectrique pligne = pcentrale->villeDependante;
+    if(! pligne->villeDesservie){
+        pligne->villeDesservie = pville;
+        pligne->puissance = puissance;
+        return 1;
+    }
+
     //On vient se placer à la dernière connexion
     //La nouvelle connexion est donc ajoutée à la fin de la liste
-    PTligneElectrique pligne = pcentrale->villeDependante;
+    pligne = pcentrale->villeDependante;
     while(pligne->ligneSuivante != NULL) pligne = pligne->ligneSuivante;
 
     //Dans le cas où il y a déja une connexion sur cette centrale, on se place sur la connexion suivante
@@ -643,6 +654,9 @@ int main() {
     ajout_centrale(1, 1673, "Paris");
     ajout_centrale(2, 2891, "Strasbourg");
     ajout_centrale(3, 1345, "Lyon");
+    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 1000);
+    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56880), 500);
+
 
     affichage_general();
 
