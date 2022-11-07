@@ -645,8 +645,47 @@ int supprimer_ville(int code_postal){
 }
 
 /*
+ * Cette fonction vérifie s'il ne manque pas de données pour la sauvegarde
+ * Renvoie 0 si tout est bon
+ * Renvoie 1 si une ville X n'a pas de nom
+ * Renvoie 2 si la ville X à un code postal déjà utilisé
+ * Renvoie 3 si la centrale X à un code de centrale déjà utilisé
+ * Renvoie 4 si la centrale n'a pas de début de liste de lignes connectées
+ * Renvoie 5 si la puissance restante dans la centrale est négative
+ * Renvoie 6 si une ville à une puissance mais n'a pas de ville assignée
+ */
+int check_presauvegarde_fichier(){
+    PTcentrale pcentrale = pPremiereCentrale;
+    PTville pville = pPremiereVille;
+    PTligneElectrique pligne = NULL;
+
+    if(nbville){
+        while(pville){
+            if(! pville->nom) return 1;
+            else if(check_code_postal_utilise(pville->codePostal)) return 2;
+            pville = pville->villeSuivante;
+        }
+    }
+
+    if(nbcentrales){
+        while(pcentrale){
+            if(check_code_centrale_utilise(pcentrale->codeCentrale)) return 3;
+            else if(! pcentrale->villeDependante) return 4;
+            else if(get_puissance_restante_centrale(pcentrale) < 0) return 5;
+            pligne = pcentrale->villeDependante;
+            if(! pligne->puissance && ! pligne->villeDesservie)
+            while(pligne) {
+                if (pligne->puissance && !pligne->villeDesservie) return 6;
+                pligne = pligne->ligneSuivante;
+            }
+            pcentrale = pcentrale->ptsuivant;
+        }
+    }
+}
+
+/*
  * Cette fonction créée une sauvegarde des données
- * Renvoie 0 s'il manque une information
+ * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
 int sauvegarde_fichier(){
@@ -660,12 +699,16 @@ int sauvegarde_fichier(){
 
     fprintf(sauvegarde, "%d\n", nbville);
 
-    while(pville){
-        fprintf(sauvegarde, "%s %d\n", pville->nom, pville->codePostal);
-        pville = pville->villeSuivante;
+    if(nbcentrales) {
+        while (pville) {
+            fprintf(sauvegarde, "%s %d\n", pville->nom, pville->codePostal);
+            pville = pville->villeSuivante;
+        }
     }
 
     fprintf(sauvegarde, "\n%d\n", nbcentrales);
+
+    if(! nbcentrales) return 1;
 
     while(pcentrale){
         fprintf(sauvegarde, "%s %d %d\n", pcentrale->nom, pcentrale->codeCentrale, pcentrale->puissance_max);
@@ -674,7 +717,6 @@ int sauvegarde_fichier(){
 
     pcentrale = pPremiereCentrale;
     fprintf(sauvegarde, "\n");
-
     while(pcentrale) {
         pligne = pcentrale->villeDependante;
         if (!pligne->villeDesservie) return 0;
@@ -685,6 +727,9 @@ int sauvegarde_fichier(){
         }
         pcentrale = pcentrale->ptsuivant;
     }
+
+    fclose(sauvegarde);
+    return 1;
 }
 
 int main() {
@@ -692,16 +737,9 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    ajouter_ville(56100, "Lorient");
-    ajouter_ville(56000, "Vannes");
-    ajouter_ville(56880, "Ploeren");
     ajout_centrale(1, 1673, "Paris");
     ajout_centrale(2, 2891, "Strasbourg");
     ajout_centrale(3, 1345, "Lyon");
-    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 1000);
-    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56880), 500);
-    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56000), 500);
-    ajouter_connexion(get_adresse_centrale(3), get_adresse_ville(56000), 500);
 
     affichage_general();
 
