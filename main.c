@@ -55,6 +55,7 @@ FILE* sauvegarde = NULL;
 //Compteur nombre ville && centrale
 int nbville = 0;
 int nbcentrales = 0;
+int nbconnexion = 0;
 
 /*
  * Cette fonction renvoi l'adresse d'une centrale
@@ -505,6 +506,7 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     if(! pligne->villeDesservie){
         pligne->villeDesservie = pville;
         pligne->puissance = puissance;
+        nbconnexion ++;
         return 1;
     }
 
@@ -524,6 +526,7 @@ int ajouter_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     pligne->villeDesservie = pville;
     pligne->puissance = puissance;
 
+    nbconnexion ++;
     return 1;
 }
 
@@ -584,11 +587,13 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
     if (! pligne->ligneSuivante){
         pligne->villeDesservie = NULL;
         pligne->puissance = 0;
+        nbconnexion --;
         return 1;
     }
     //Cas où la connexion à supprimer est la première
     else if (pligne->villeDesservie == pville){
         pcentrale->villeDependante = pligne->ligneSuivante;
+        nbconnexion --;
         return 1;
     }
     //Autres cas
@@ -596,6 +601,7 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
         //Se place sur la ligne précédent la suppression
         while (pligne->ligneSuivante->villeDesservie != pville) pligne = pligne->ligneSuivante;
         pligne->ligneSuivante = pligne->ligneSuivante->ligneSuivante;
+        nbconnexion --;
         return 1;
     }
 }
@@ -681,6 +687,7 @@ int check_presauvegarde_fichier(){
             pcentrale = pcentrale->ptsuivant;
         }
     }
+    return 0;
 }
 
 /*
@@ -699,24 +706,24 @@ int sauvegarde_fichier(){
 
     fprintf(sauvegarde, "%d\n", nbville);
 
-    if(nbcentrales) {
+    if(nbville) {
         while (pville) {
-            fprintf(sauvegarde, "%s %d\n", pville->nom, pville->codePostal);
+            fprintf(sauvegarde, "%d %s\n", pville->codePostal, pville->nom);
             pville = pville->villeSuivante;
         }
     }
 
-    fprintf(sauvegarde, "\n%d\n", nbcentrales);
+    fprintf(sauvegarde, "*****\n%d\n", nbcentrales);
 
     if(! nbcentrales) return 1;
 
     while(pcentrale){
-        fprintf(sauvegarde, "%s %d %d\n", pcentrale->nom, pcentrale->codeCentrale, pcentrale->puissance_max);
+        fprintf(sauvegarde, "%d %d %s\n", pcentrale->codeCentrale, pcentrale->puissance_max, pcentrale->nom);
         pcentrale = pcentrale->ptsuivant;
     }
 
     pcentrale = pPremiereCentrale;
-    fprintf(sauvegarde, "\n");
+    fprintf(sauvegarde, "*****\n");
     while(pcentrale) {
         pligne = pcentrale->villeDependante;
         if (!pligne->villeDesservie) return 0;
@@ -732,18 +739,46 @@ int sauvegarde_fichier(){
     return 1;
 }
 
+/*
+ * Cette fonction lit le fichier sauvegarde que l'on veut
+ * Renvoie 0 si erreur
+ * Renvoie 1 si tout est bon
+ */
+int chargement_sauvegarde() {
+    sauvegarde = NULL;
+    int nombreville = 0, nombrecentrale = 0, code_postale;
+    char nom_ville[30] = {0}, marqueur[5] = {0};
+
+    sauvegarde = fopen("sauvegarde.txt", "r");
+
+    fscanf(sauvegarde, "%d", &nombreville);
+
+    while (fscanf(sauvegarde, "%s") != '/') {
+        fscanf(sauvegarde, "%d %s %s", &code_postale, nom_ville, marqueur);
+        ajouter_ville(code_postale, nom_ville);
+    }
+
+
+
+    fclose(sauvegarde);
+    return 1;
+}
+
 int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
+
+    ajouter_ville(56000, "Vannes");
+    ajouter_ville(56100, "Lorient");
+    ajouter_ville(56880, "Ploeren");
     ajout_centrale(1, 1673, "Paris");
     ajout_centrale(2, 2891, "Strasbourg");
     ajout_centrale(3, 1345, "Lyon");
+    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 150);
+    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56100), 200);
 
-    affichage_general();
-
-    sauvegarde_fichier();
-
+    chargement_sauvegarde();
     return 0;
 }
