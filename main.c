@@ -99,7 +99,6 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
 /*
  * Cette fonction est utile seulement pour le développement.
  * Elle créé 3 centrales et 3 villes.
- *
  * Les connexions entre ces élements sont les suivants :
  * La centrale 1 et la ville 1 simplement reliées entre elles
  * La centrale 2 reliée aux villes 2 et 3
@@ -713,7 +712,7 @@ int sauvegarde_fichier(){
         }
     }
 
-    fprintf(sauvegarde, "*****\n%d\n", nbcentrales);
+    fprintf(sauvegarde, "%d\n", nbcentrales);
 
     if(! nbcentrales) return 1;
 
@@ -722,8 +721,8 @@ int sauvegarde_fichier(){
         pcentrale = pcentrale->ptsuivant;
     }
 
+    fprintf(sauvegarde, "%d\n", nbconnexion);
     pcentrale = pPremiereCentrale;
-    fprintf(sauvegarde, "*****\n");
     while(pcentrale) {
         pligne = pcentrale->villeDependante;
         if (!pligne->villeDesservie) return 0;
@@ -745,20 +744,35 @@ int sauvegarde_fichier(){
  * Renvoie 1 si tout est bon
  */
 int chargement_sauvegarde() {
+    pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
+    pPremiereVille = (PTville) malloc(sizeof (Tville));
+
     sauvegarde = NULL;
-    int nombreville = 0, nombrecentrale = 0, code_postale;
-    char nom_ville[30] = {0}, marqueur[5] = {0};
+    int compteur_ville = 0, compteur_centrale = 0, compteur_connexion = 0, code_postale, code_centrale, puissance;
+    char nom_ville[30] = {0}, nom_centrale[30] = {0};
 
     sauvegarde = fopen("sauvegarde.txt", "r");
 
-    fscanf(sauvegarde, "%d", &nombreville);
-
-    while (fscanf(sauvegarde, "%s") != '/') {
-        fscanf(sauvegarde, "%d %s %s", &code_postale, nom_ville, marqueur);
+    fscanf(sauvegarde, "%d", &compteur_ville);
+    while (compteur_ville) {
+        fscanf(sauvegarde, "%d %s", &code_postale, nom_ville);
         ajouter_ville(code_postale, nom_ville);
+        compteur_ville --;
     }
 
+    fscanf(sauvegarde, "%d", &compteur_centrale);
+    while(compteur_centrale){
+        fscanf(sauvegarde, "%d %d %s", &code_centrale, &puissance, nom_ville);
+        ajout_centrale(code_centrale, puissance, nom_ville);
+        compteur_centrale --;
+    }
 
+    fscanf(sauvegarde, "%d", &compteur_connexion);
+    while(compteur_connexion){
+        fscanf(sauvegarde, "%d %d %d", &code_centrale, &code_postale, &puissance);
+        ajouter_connexion(get_adresse_centrale(code_centrale), get_adresse_ville(code_postale), puissance);
+        compteur_connexion --;
+    }
 
     fclose(sauvegarde);
     return 1;
@@ -770,15 +784,7 @@ int main() {
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
 
-    ajouter_ville(56000, "Vannes");
-    ajouter_ville(56100, "Lorient");
-    ajouter_ville(56880, "Ploeren");
-    ajout_centrale(1, 1673, "Paris");
-    ajout_centrale(2, 2891, "Strasbourg");
-    ajout_centrale(3, 1345, "Lyon");
-    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 150);
-    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56100), 200);
-
     chargement_sauvegarde();
+    affichage_general();
     return 0;
 }
