@@ -694,12 +694,16 @@ int check_presauvegarde_fichier(){
  * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
-int sauvegarde_fichier(){
+int sauvegarde_fichier(char nom_fichier_sauvegarde[20]){
     PTcentrale pcentrale = pPremiereCentrale;
     PTville pville = pPremiereVille;
     PTligneElectrique pligne = NULL;
+    char extension[] = ".txt", nom[50];
 
-    sauvegarde = fopen("sauvegarde.txt", "w");
+    strcpy(nom, nom_fichier_sauvegarde);
+    strcat(nom, extension);
+
+    sauvegarde = fopen(nom, "w");
 
     if(! sauvegarde) return 0;
 
@@ -743,7 +747,7 @@ int sauvegarde_fichier(){
  * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
-int chargement_sauvegarde() {
+int chargement_sauvegarde(char nom_fichier_charge[]) {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
@@ -751,7 +755,7 @@ int chargement_sauvegarde() {
     int compteur_ville = 0, compteur_centrale = 0, compteur_connexion = 0, code_postale, code_centrale, puissance;
     char nom_ville[30] = {0}, nom_centrale[30] = {0};
 
-    sauvegarde = fopen("sauvegarde.txt", "r");
+    sauvegarde = fopen(nom_fichier_charge, "r");
 
     fscanf(sauvegarde, "%d", &compteur_ville);
     while (compteur_ville) {
@@ -783,8 +787,19 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
+    /*
+    ajouter_ville(56000, "Vannes");
+    ajouter_ville(56100, "Lorient");
+    ajouter_ville(56880, "Ploeren");
+    ajouter_ville(56800, "Rennes");
+    ajout_centrale(1, 3000, "Paris");
+    ajout_centrale(2, 2800, "Strasbourg");
+    ajout_centrale(3, 4800, "Marseille");
+    ajouter_connexion(get_adresse_centrale(1), get_adresse_ville(56000), 1000);
+    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56100), 1200);
+    ajouter_connexion(get_adresse_centrale(3), get_adresse_ville(56880), 2200);
+    ajouter_connexion(get_adresse_centrale(2), get_adresse_ville(56880), 500);
+*/
 
-    chargement_sauvegarde();
-    affichage_general();
     return 0;
 }
