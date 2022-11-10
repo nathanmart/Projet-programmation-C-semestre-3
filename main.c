@@ -757,10 +757,10 @@ int sauvegarde_fichier(char chemin[200]){
 
 /*
  * Cette fonction lit le fichier sauvegarde que l'on veut
- * Renvoie 0 si erreur
+ * Renvoie 0 si le fichier n'existe pas
  * Renvoie 1 si tout est bon
  */
-int chargement_sauvegarde() {
+int chargement_sauvegarde(char chemin[200]) {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
@@ -768,7 +768,8 @@ int chargement_sauvegarde() {
     int compteur_ville = 0, compteur_centrale = 0, compteur_connexion = 0, code_postale, code_centrale, puissance;
     char nom_ville[30] = {0}, nom_centrale[30] = {0};
 
-    sauvegarde = fopen("sauvegarde.txt", "r");
+    sauvegarde = fopen(chemin, "r");
+    if(!sauvegarde) return 0;
 
     fscanf(sauvegarde, "%d", &compteur_ville);
     while (compteur_ville) {
@@ -800,8 +801,7 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    creation_test();
-    sauvegarde_fichier("C:\\Users\\natha\\Documents\\sauvegarde.txt");
+    chargement_sauvegarde("C:\\Users\\natha\\Downloads\\sldim\\lang\\french\\sldIM_Download.chm");
 
     return 0;
 }
