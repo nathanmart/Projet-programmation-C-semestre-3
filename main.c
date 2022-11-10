@@ -208,6 +208,7 @@ void creation_test(){
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 1000;
     pcentrale->villeDependante->ligneSuivante = NULL;
+    nbconnexion++;
 
 
     //Lien centrale 2 <-> ville 2 & 3
@@ -217,6 +218,8 @@ void creation_test(){
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 900;
     pcentrale->villeDependante->ligneSuivante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
+    nbconnexion++;
+
 
 
     pville = pville->villeSuivante;
@@ -224,6 +227,8 @@ void creation_test(){
     pligne->villeDesservie = pville;
     pligne->puissance = 400;
     pligne->ligneSuivante = NULL;
+    nbconnexion++;
+
 
 
     //Lien centrale 3 <-> ville 3
@@ -231,6 +236,8 @@ void creation_test(){
     pcentrale->villeDependante->villeDesservie = pville;
     pcentrale->villeDependante->puissance = 1500;
     pcentrale->villeDependante->ligneSuivante = NULL;
+    nbconnexion++;
+
 }
 
 /*
@@ -793,7 +800,6 @@ int main() {
 
     chargement_sauvegarde();
     affichage_general();
-
 
     return 0;
 }
