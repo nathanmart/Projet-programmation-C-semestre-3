@@ -118,24 +118,28 @@ void creation_test(){
     //Création première ville
     pville = pPremiereVille;
     pville->codePostal = 1;
+    strcpy(pville->nom, "Ville_1");
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
     nbville++;
 
     //Création deuxieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 2;
+    strcpy(pville->nom, "Ville_2");
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
     nbville++;
 
     //Création troisieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 3;
+    strcpy(pville->nom, "Ville_3");
     pville->villeSuivante = (PTville) malloc(sizeof (Tville));
     nbville++;
 
     //Création quatrieme ville
     pville = pville->villeSuivante;
     pville->codePostal = 4;
+    strcpy(pville->nom, "Ville_4");
     pville->villeSuivante = NULL;
     nbville++;
 
@@ -147,6 +151,7 @@ void creation_test(){
     //Création première centrale
     pcentrale = pPremiereCentrale;
     pcentrale->codeCentrale = 1;
+    strcpy(pcentrale->nom, "Centrale_1");
     pcentrale->puissance_max = 1000;
     pcentrale->ptprecedent = NULL;
     pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
@@ -159,6 +164,7 @@ void creation_test(){
     pcentrale->ptsuivant->ptprecedent = pcentrale;
     pcentrale = pPremiereCentrale->ptsuivant;
     pcentrale->codeCentrale = 2;
+    strcpy(pcentrale->nom, "Centrale_2");
     pcentrale->puissance_max = 1500;
     pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
@@ -170,6 +176,7 @@ void creation_test(){
     pcentrale->ptsuivant->ptprecedent = pcentrale;
     pcentrale = pcentrale->ptsuivant;
     pcentrale->codeCentrale = 3;
+    strcpy(pcentrale->nom, "Centrale_3");
     pcentrale->puissance_max = 2000;
     pcentrale->ptsuivant = (PTcentrale) malloc(sizeof(Tcentrale));
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
@@ -181,6 +188,7 @@ void creation_test(){
     pcentrale->ptsuivant->ptprecedent = pcentrale;
     pcentrale = pcentrale->ptsuivant;
     pcentrale->codeCentrale = 4;
+    strcpy(pcentrale->nom, "Centrale_4");
     pcentrale->puissance_max = 5000;
     pcentrale->ptsuivant = NULL;
     pcentrale->villeDependante = (PTligneElectrique) malloc(sizeof(TlignesElectrique));
@@ -783,8 +791,9 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-
     chargement_sauvegarde();
     affichage_general();
+
+
     return 0;
 }
