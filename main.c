@@ -706,15 +706,17 @@ int check_presauvegarde_fichier(){
 
 /*
  * Cette fonction créée une sauvegarde des données
+ * Le chemin doit être envoyé selon le format spécfique à l'OS.
+ * Pour windows exemple :"C:\Users\nathan\Documents\sauvegarde.txt"
  * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
-int sauvegarde_fichier(){
+int sauvegarde_fichier(char chemin[200]){
     PTcentrale pcentrale = pPremiereCentrale;
     PTville pville = pPremiereVille;
     PTligneElectrique pligne = NULL;
 
-    sauvegarde = fopen("sauvegarde.txt", "w");
+    sauvegarde = fopen(chemin, "w");
 
     if(! sauvegarde) return 0;
 
@@ -798,8 +800,8 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    chargement_sauvegarde();
-    affichage_general();
+    creation_test();
+    sauvegarde_fichier("C:\\Users\\natha\\Documents\\sauvegarde.txt");
 
     return 0;
 }
