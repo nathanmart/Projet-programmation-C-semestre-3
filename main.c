@@ -434,7 +434,7 @@ int check_presauvegarde_fichier(){
 
 /*
  * Cette fonction permet de modifier une centrale
- * Renvoie 0 si erreur
+ * Renvoie 0 si la centrale n'existe pas
  * Renvoie 1 si tout est bon
  * Renvoie 2 si la puissance est insufisante
  */
@@ -459,7 +459,7 @@ int modifier_centrale(int code_centrale, int puissance_max){
 
 /*
  * Cette fonction permet d'ajouter une centrale
- * Renvoie 0 si erreur
+ * Renvoie 0 si le code de la centrale est déja utilisé
  * Renvoie 1 si tout est bon
  * Renvoie 2 si existe déjà
  */
@@ -544,7 +544,7 @@ int supprimer_centrale(int code_centrale){
 /*
  * Cette fonction additionne une nouvelle puissance avec celle existante d'une connexion
  * Renvoie 1 si tout s'est bien passé
- * Renvoie 0 en cas d'erreur
+ * Renvoie 0 en si la connexion n'existe pas
  */
 int additionner_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     PTligneElectrique pligne = pcentrale->villeDependante;
@@ -562,7 +562,7 @@ int additionner_connexion(PTcentrale pcentrale, PTville pville, int puissance){
 /*
  * Cette fonction change la puissance d'une connexion existante
  * Renvoie 1 si tout s'est bien passé
- * Renvoie 0 en cas d'erreur
+ * Renvoie 0 si la connexion n'existe pas
  */
 int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     PTligneElectrique pligne = pcentrale->villeDependante;
@@ -700,9 +700,10 @@ int supprimer_ville(int code_postal){
     //Vérification de l'existence de la ville
     if(! check_code_postal_utilise(code_postal)) return 0;
 
+
     //On supprime toutes les connexions que cette ville pourrait avoir
     PTcentrale pcentrale = pPremiereCentrale;
-    while (pcentrale){
+    while (pcentrale && nbcentrales){
         supprimer_connexion(pcentrale, get_adresse_ville(code_postal));
         pcentrale = pcentrale->ptsuivant;
     }
@@ -741,7 +742,7 @@ int supprimer_ville(int code_postal){
 /*
  * Cette fonction créée une sauvegarde des données
  * Le chemin doit être envoyé selon le format spécfique à l'OS.
- * Pour windows exemple :"C:\Users\nathan\Documents\sauvegarde.txt"
+ * Pour windows exemple :"C:\\Users\\nathan\\Documents\\sauvegarde.txt"
  * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
@@ -752,7 +753,10 @@ int sauvegarde_fichier(char chemin[200]){
 
     sauvegarde = fopen(chemin, "w");
 
-    if(! sauvegarde) return 0;
+    if(! sauvegarde){
+        fclose(sauvegarde);
+        return 0;
+    }
 
     fprintf(sauvegarde, "%d\n", nbville);
 
@@ -765,7 +769,10 @@ int sauvegarde_fichier(char chemin[200]){
 
     fprintf(sauvegarde, "%d\n", nbcentrales);
 
-    if(! nbcentrales) return 1;
+    if(! nbcentrales) {
+        fclose(sauvegarde);
+        return 1;
+    }
 
     while(pcentrale){
         fprintf(sauvegarde, "%d %d %s\n", pcentrale->codeCentrale, pcentrale->puissance_max, pcentrale->nom);
@@ -835,6 +842,143 @@ int chargement_sauvegarde(char chemin[200]) {
 /////////////// Fonctions graphique ///////////////
 
 
+
+void programme_console(){
+    while(1){
+        printf("Que voulez-vous faire?:\n");
+        printf("Ajouter une ville: 1\n");
+        printf("Supprimmer une ville: 2\n");
+        printf("Ajouter une centrale: 3\n");
+        printf("Modifier la puissance d'une centrale: 4\n");
+        printf("Supprimer une centrale: 5\n");
+        printf("Ajouter une connexion: 6\n");
+        printf("Modifier une connexion: 7\n");
+        printf("Supprimer une connexion: 8\n");
+        printf("Enrengistrer dans un fichier: 9\n");
+        printf("Charger un fichier: 10\n");
+        printf("Affichage general: 11\n");
+        printf("Votre choix: ");
+
+        int choix;
+        scanf("%d", &choix);
+
+        if(choix == 1){
+            printf("Nom de la nouvelle ville: ");
+            char nom[50];
+            scanf("%s", &nom);
+            printf("Code postal: ");
+            int code_postal;
+            scanf("%d", &code_postal);
+            int retour = ajouter_ville(code_postal, nom);
+            if (retour == 0) printf("Code postal deka utilise");
+            else printf("Ville ajoutee");
+        }
+        else if(choix == 2){
+            printf("Supprimer ville, code postal: ");
+            int code_postal;
+            scanf("%d", &code_postal);
+            int retour = supprimer_ville(code_postal);
+            if (retour == 0) printf("La ville n'existe pas");
+            else printf("Ville supprimee");
+        }
+        else if(choix == 3){
+            printf("Ajouter centrale, son numero d'identification");
+            int numero;
+            scanf("%d", &numero);
+            printf("Son nom: ");
+            char nom[50];
+            scanf("%s", &nom);
+            printf("Sa puissance max: ");
+            int puissance;
+            scanf("%d", &puissance);
+            int retour = ajout_centrale(numero, puissance, nom);
+            if (retour == 0) printf("Ce code est déja utilisé");
+            else if (retour == 1) printf("Centrale bien cree");
+            else printf("Cette centrale existe deja");
+        }
+        else if(choix == 4){
+            printf("Modifier puissance centrale, son numero d'identification: ");
+            int numero;
+            scanf("%d", &numero);
+            printf("Sa nouvelle puissance: ");
+            int puissance;
+            scanf("%d", &puissance);
+            int retour = modifier_centrale(numero, puissance);
+            if (retour == 0) printf("La centrale n'existe pas");
+            else if (retour == 1) printf("Puissance mis a jour");
+            else if (retour == 2) printf("Puissance insufisante, supprimez d'abord des connexions");
+        }
+        else if(choix == 5){
+            printf("Numero de la centrale a supprimer: ");
+            int numero;
+            scanf("%d", &numero);
+            int retour = supprimer_centrale(numero);
+            if (retour == 0) printf("La centrale n'existe pas");
+            else printf("Centrale supprimee");
+        }
+        else if(choix == 6){
+            printf("Ajouter connexion entre centrale numero: ");
+            int numero;
+            scanf("%d", &numero);
+            printf("et la ville: ");
+            int code_postal;
+            scanf("%d", &code_postal);
+            printf("pour une puissance de: ");
+            int puissance;
+            scanf("%d", &puissance);
+            int retour = ajouter_connexion(get_adresse_centrale(numero), get_adresse_ville(code_postal), puissance);
+            if (retour == 0) printf("Pas assez de puissance dispo");
+            else if (retour == 1) printf("Connexion cree");
+            else if (retour == 2) printf("Connexion existante, elles ont ete additionnees");
+        }
+        else if (choix == 7){
+            printf("Modifier connexion entre central numero: ");
+            int numero;
+            scanf("%d", &numero);
+            printf("et la ville: ");
+            int code_postal;
+            scanf("%d", &code_postal);
+            printf("pour une nouvelle puissance de: ");
+            int puissance;
+            scanf("%d", puissance);
+            int retour = modifier_connexion(get_adresse_centrale(numero), get_adresse_ville(code_postal), puissance);
+            if (retour == 0) printf("La connexion n'existe pas");
+            else printf("Connexion modifiee");
+        }
+        else if (choix == 8){
+            printf("Supprimer une connexion entre la centrale numero:");
+            int numero;
+            scanf("%d", &numero);
+            printf("et la ville: ");
+            int code_postal;
+            scanf("%d", &code_postal);
+            int retour = supprimer_connexion(get_adresse_centrale(numero), get_adresse_ville(code_postal));
+            if (retour == 0) printf("La connexion n'existe pas");
+            else printf("La connexion a ete supprimee");
+        }
+        else if (choix == 9){
+            printf("Entrez le chemin complet avec le nom du fichier: ");
+            char chemin[200];
+            scanf("%s", &chemin);
+            int retour = sauvegarde_fichier(chemin);
+            if (retour == 1) printf("Sauverage avec succes");
+            else printf("Erreur de sauvegarde");
+        }
+        else if (choix == 10){
+            printf("Entrez le chemin du fichier a charger: ");
+            char chemin[200];
+            scanf("%s", chemin);
+            int retour = chargement_sauvegarde(chemin);
+            if (retour == 0) printf("Le fichier n'existe pas");
+            else printf("Fichier charge");
+        }
+        else if (choix == 11) affichage_general();
+
+
+        printf("\n\n\n\n");
+
+    }
+}
 /////////////// Main ///////////////
 
 int main() {
@@ -842,9 +986,7 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    creation_test();
-    ajouter_ville(95270, "Chaumontel");
-    ajout_centrale(65, 7400, "Fukushima");
+    programme_console();
 
     return 0;
 }
