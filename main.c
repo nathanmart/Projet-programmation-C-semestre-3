@@ -813,6 +813,8 @@ int chargement_sauvegarde(char chemin[200]) {
     sauvegarde = fopen(chemin, "r");
     if(!sauvegarde) return 0;
 
+    nbcentrales = 0, nbville = 0, nbconnexion = 0;
+
     fscanf(sauvegarde, "%d", &compteur_ville);
     while (compteur_ville) {
         fscanf(sauvegarde, "%d %s", &code_postale, nom_ville);
