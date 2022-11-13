@@ -817,6 +817,9 @@ int chargement_sauvegarde(char chemin[200]) {
 
     sauvegarde = fopen(chemin, "r");
     if(!sauvegarde) return 0;
+    nbville = 0;
+    nbcentrales = 0;
+    nbconnexion = 0;
 
     nbcentrales = 0, nbville = 0, nbconnexion = 0;
 
