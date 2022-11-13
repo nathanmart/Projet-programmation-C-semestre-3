@@ -262,6 +262,7 @@ void affichage_general(){
     PTligneElectrique pligne;
 
     printf("************************************************************\n");
+    printf("IL y a %d villes, %d centrales et %d connexions", nbville, nbcentrales, nbconnexion);
 
 
     /*
@@ -783,7 +784,10 @@ int sauvegarde_fichier(char chemin[200]){
     pcentrale = pPremiereCentrale;
     while(pcentrale) {
         pligne = pcentrale->villeDependante;
-        if (!pligne->villeDesservie) return 0;
+        if (!pligne->villeDesservie){
+            fclose(sauvegarde);
+            return 1;
+        }
         while (pligne) {
             pville = pligne->villeDesservie;
             fprintf(sauvegarde, "%d %d %d\n", pcentrale->codeCentrale, pville->codePostal, pligne->puissance);
