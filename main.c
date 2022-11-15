@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <windows.h>
 
 
 //Structure des villes
@@ -963,7 +964,7 @@ void programme_console(){
             else printf("La connexion a ete supprimee");
         }
         else if (choix == 9){
-            printf("Entrez le chemin complet avec le nom du fichier: ");
+            printf("Entrez le nom avec le nom du fichier: ");
             char chemin[200];
             scanf("%s", &chemin);
             int retour = sauvegarde_fichier(chemin);
@@ -971,7 +972,7 @@ void programme_console(){
             else printf("Erreur de sauvegarde");
         }
         else if (choix == 10){
-            printf("Entrez le chemin du fichier a charger: ");
+            printf("Entrez le nom du fichier a charger: ");
             char chemin[200];
             scanf("%s", chemin);
             int retour = chargement_sauvegarde(chemin);
@@ -985,6 +986,65 @@ void programme_console(){
 
     }
 }
+
+/////////////// Graphique ///////////////
+
+int lireCaract(){
+
+    char c=10;
+    int fnt=0;
+
+    c=getch();
+    fnt=c;
+    if (c==-32){c=getch();fnt = 400+c;}
+    if (c==0)  {c=getch();fnt = 500+c;}
+    return fnt;
+}
+
+
+void gotoLigCol( int lig, int col )
+{
+    // ressources
+    COORD mycoord;
+
+    mycoord.X = col;
+    mycoord.Y = lig;
+    SetConsoleCursorPosition( GetStdHandle( STD_OUTPUT_HANDLE ), mycoord );
+}
+
+void menu(){
+    system("cls");
+
+    int j = 8;
+    gotoLigCol(2, 15);
+    printf("MENU");
+
+    gotoLigCol(4, j);
+    printf("1 - Ajouter une ville\n");
+    gotoLigCol(5, j);
+    printf("2 - Supprimmer une ville\n");
+    gotoLigCol(6, j);
+    printf("Ajouter une centrale: 3\n");
+    gotoLigCol(7, j);
+    printf("Modifier la puissance d'une centrale: 4\n");
+    gotoLigCol(8, j);
+    printf("Supprimer une centrale: 5\n");
+    gotoLigCol(9, j);
+    printf("Ajouter une connexion: 6\n");
+    gotoLigCol(10, j);
+    printf("Modifier une connexion: 7\n");
+    gotoLigCol(11, j);
+    printf("Supprimer une connexion: 8\n");
+    gotoLigCol(12, j);
+    printf("Enrengistrer dans un fichier: 9\n");
+    gotoLigCol(13, j);
+    printf("Charger un fichier: 10\n");
+    gotoLigCol(14, j);
+    printf("Affichage general: 11\n");
+
+
+}
+
 /////////////// Main ///////////////
 
 int main() {
@@ -992,7 +1052,10 @@ int main() {
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
-    programme_console();
+    menu();
 
+
+    scanf("%d", pPremiereCentrale);
+    system("cls");
     return 0;
 }
