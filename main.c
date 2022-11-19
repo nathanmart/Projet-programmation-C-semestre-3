@@ -10,6 +10,17 @@
 #include <windows.h>
 #include <unistd.h>
 
+// Indice ASCII des caractères d'affichage
+// A changer si spécificité sur la machine d'execution
+int cvertical=186;
+int chorizontal=205;
+int cangleGH=201;
+int cangleGB=200;
+int cangleDH=187;
+int cangleDB=188;
+int cDoubleAngleGauche = 204;
+int cDoubleAngleDroite = 185;
+
 
 //Structure des villes
 typedef struct ville {
@@ -1016,31 +1027,179 @@ void gotoLigCol( int lig, int col )
     SetConsoleCursorPosition( GetStdHandle( STD_OUTPUT_HANDLE ), mycoord );
 }
 
-int cvertical=186;
-int chorizontal=205;
-int cangleGH=201;
-int cangleGB=200;
-int cangleDH=187;
-int cangleDB=188;
-int cDoubleAngleGauche = 204;
-int cDoubleAngleDroite = 185;
 
-int largeur = 40;
-int j = 8;
-int position_choix = 11; //j + 3
+// Emplacement coin haut gauche des cadres
+int x = 8;
+int y = 2;
 
-void make_cadre(HANDLE hConsole){
+
+void make_rectangle(HANDLE hConsole, int largeur, int hauteur){
+    //Création de barres verticales
+    for (int i = y; i < hauteur + y; i++){
+        gotoLigCol(i, x);
+        printf("%c", cvertical);
+        gotoLigCol(i, x + largeur );
+        printf("%c", cvertical);
+    }
+
+    //Création des barres horizontales
+    for (int i = x - 1; i < largeur + x; i++){
+        gotoLigCol(y, i + 1);
+        printf("%c", chorizontal);
+        gotoLigCol(y + hauteur, i +1);
+        printf("%c", chorizontal);
+    }
+
+    //Coin
+    gotoLigCol(y, x);
+    printf("%c", cangleGH);
+
+    gotoLigCol(y, x + largeur);
+    printf("%c", cangleDH);
+
+    gotoLigCol(y + hauteur, x);
+    printf("%c", cangleGB);
+
+    gotoLigCol(y + hauteur, x + largeur);
+    printf("%c", cangleDB);
+}
+
+
+void make_dessin_maison(int posX, int posY){
+    gotoLigCol(posX + 1, posY + 1);
+    printf("      ^     ");
+    gotoLigCol(posX + 2, posY + 1);
+    printf("     / \\   ");
+    gotoLigCol(posX + 3, posY + 1);
+    printf("    /   \\   ");
+    gotoLigCol(posX + 4, posY + 1);
+    printf("   /     \\  ");
+    gotoLigCol(posX + 5, posY + 1);
+    printf("   -------   ");
+    gotoLigCol(posX + 6, posY + 1);
+    printf("   |     |    ");
+    gotoLigCol(posX + 7, posY + 1);
+    printf("   |     |   ");
+    gotoLigCol(posX + 8, posY + 1);
+    printf("   -------");
+
+}
+
+void affichage_ville(HANDLE hConsole){
+    system("cls");
+    system("color f0");
+    make_rectangle(hConsole, 35, 22);
+
+    make_dessin_maison(y + 1, x + 9);
+
+    gotoLigCol(y + 11, x + 2);
+    printf("Nom ville:");
+    gotoLigCol(y + 12, x + 2);
+    printf("Code postal:");
+    gotoLigCol(y + 13, x + 2);
+    printf("Puissance recu: ");
+
+    gotoLigCol(y + 15, x + 2);
+    printf("[*]Ajouter nouvelle ville");
+    gotoLigCol(y + 16, x + 2);
+    printf("[ ]Supprimer cette ville");
+
+    gotoLigCol(y + 18, x + 2);
+    printf("Echap pour revenir au menu");
+    gotoLigCol(y + 19, x + 2);
+    printf("Fleches pour se deplacer");
+    gotoLigCol(y + 20, x + 2);
+    printf("Entree pour valider");
+
+    while (1){
+        //Si il n'y a pas de ville
+        if (!nbville){
+            gotoLigCol(y + 11, x + 13);
+            printf("PAS DE VILLE          ");
+            gotoLigCol(y + 12, x + 15);
+            printf("PAS DE VILLE        ");
+            gotoLigCol(y + 13, x + 18);
+            printf("PAS DE VILLE     ");
+            gotoLigCol(y + 16, x + 1);
+            printf("                            ");
+        }
+        else{
+            //pointer sur la ville
+        }
+    }
+
+}
+
+
+int confirmer_quitter(HANDLE hConsole){
+    system("cls");
+    system("color f0");
+    make_rectangle(hConsole, 38, 10);
+
+    gotoLigCol(y + 3, x + 4);
+    SetConsoleTextAttribute(hConsole, 244);
+    printf("Voulez-vous vraiment quitter ?");
+
+    gotoLigCol(y + 6, x + 6);
+    SetConsoleTextAttribute(hConsole, 240);
+    printf("[*]NON");
+    gotoLigCol(y + 6, x + 17);
+    printf("[ ]OUI");
+
+    gotoLigCol(y + 8, x + 4);
+    printf("Appuyez sur Entree");
+
+
+    // 0=rester, 1=quitter
+    int index = 0;
+    int i;
+
+    while (1){
+        i = lireCaract();
+
+        //Entree
+        if (i == 13){
+            if (index == 0) return 0;
+            else return 1;
+        }
+        //Fleche droite
+        else if(i == 477){
+            gotoLigCol(y + 6, x + 6);
+            SetConsoleTextAttribute(hConsole, 240);
+            printf("[ ]NON");
+            gotoLigCol(y + 6, x + 17);
+            printf("[*]OUI");
+            index = 1;
+        }
+        //Fleche gauche
+        else if(i == 475){
+            gotoLigCol(y + 6, x + 6);
+            SetConsoleTextAttribute(hConsole, 240);
+            printf("[*]NON");
+            gotoLigCol(y + 6, x + 17);
+            printf("[ ]OUI");
+            index = 0;
+        }
+    }
+}
+
+
+
+/*
+ * Création du cadre pour le menu
+ */
+void make_cadre_menu(HANDLE hConsole, int x, int y, int largeur){
     SetConsoleTextAttribute(hConsole, 15*16);
     //Barres horizontale droite et gauche
-    for (int i = 2; i < 14; ++i) {
-        gotoLigCol(i, j);
+    for (int i = y; i < 14; ++i) {
+        gotoLigCol(i, x);
         printf("%c", cvertical);
-        gotoLigCol(i, j + largeur - 1 );
+        gotoLigCol(i, x + largeur - 1 );
         printf("%c", cvertical);
     }
 
     //Barres verticales
-    for (int i = j; i < largeur + j; i ++){
+    for (int i = x; i < largeur + x; i ++){
         gotoLigCol(2, i);
         printf("%c", chorizontal);
         gotoLigCol(6, i);
@@ -1050,39 +1209,40 @@ void make_cadre(HANDLE hConsole){
     }
 
     // Angle gauche haut
-    gotoLigCol(2, j);
+    gotoLigCol(2, x);
     printf("%c", cangleGH);
 
     //Angle droite haut
-    gotoLigCol(2, j + largeur - 1);
+    gotoLigCol(2, x + largeur - 1);
     printf("%c", cangleDH);
 
     //Angle milieu gauche
-    gotoLigCol(6, j);
+    gotoLigCol(6, x);
     printf("%c", cDoubleAngleGauche);
 
     //Angle milieu droit
-    gotoLigCol(6, j + largeur - 1);
+    gotoLigCol(6, x + largeur - 1);
     printf("%c", cDoubleAngleDroite);
 
     //Angle bas gauche
-    gotoLigCol(14, j);
+    gotoLigCol(14, x);
     printf("%c", cangleGB);
 
     //Angle bas droite
-    gotoLigCol(14, j + largeur - 1);
+    gotoLigCol(14, x + largeur - 1);
     printf("%c", cangleDB);
 
-
     //Menu
-    gotoLigCol(4, j - 1 + largeur/2);
+    gotoLigCol(4, x - 1 + largeur/2);
     printf("MENU");
-    gotoLigCol(4, j);
+    gotoLigCol(4, x);
 
 }
 
-
-void make_ville_default( HANDLE hConsole){
+/*
+ * Affichage des différents choix
+ */
+void make_ville_default(HANDLE hConsole, int position_choix){
 
     SetConsoleTextAttribute(hConsole, 15*16);
 
@@ -1099,49 +1259,76 @@ void make_ville_default( HANDLE hConsole){
     printf("5 - Affichage resume\n");
 }
 
+/*
+ * Gestion du menu
+ */
 void menu(){
     int i;
+    int largeur = 40;
+
+    int position_choix = 11; //x + 3
+
+    //Nettoyage et configuration de la console
     system("cls");
     HANDLE hConsole=GetStdHandle(STD_OUTPUT_HANDLE);
     system("color f0");
 
+
+    affichage_ville(hConsole);
+    scanf("%d", i);
+
     int index = 1;
     int couleur_selection = 113;
+    int rebuild;
 
-    make_cadre(hConsole);
-    make_ville_default(hConsole);
+    //Surligne le pemier choix
+    make_cadre_menu(hConsole, x, y, largeur);
+    make_ville_default(hConsole, position_choix);
     gotoLigCol(8, position_choix);
     SetConsoleTextAttribute(hConsole, couleur_selection);
     printf("1 - Voir les villes");
 
     while (1) {
         i = lireCaract();
-        //Fleche haut
-        if (i == 472 && index > 1) index--;
-        //fleche bas
-        else if (i == 480 && index < 5) index ++;
-        else if (i == 27) break; //Echap
+        rebuild = 0;
+
+        if (i == 472 && index > 1)index--;//Fleche haut
+
+        else if (i == 480 && index < 5) index ++;//fleche bas
+
+        else if (i == 27) { //Echap
+            if (confirmer_quitter(hConsole)) break;
+            else rebuild = 1;
+        }
+
         else if (i == 13){ //Entrée
             gotoLigCol(1, 25);
             if (index == 1){
+                rebuild = 1;
                 printf("Villes");
                 //afficher les villes
             } else if (index == 2){
+                rebuild = 1;
                 printf("Centrales");
                 //Afficher les centrales
             } else if (index == 3){
+                rebuild = 1;
                 printf("Enrengistrer");
                 //Enrengistrer dans un fichier
             } else if (index == 4){
+                rebuild = 1;
                 printf("Charger");
                 //Charger un fichier
             } else if (index == 5){
+                rebuild = 1;
                 printf("Affichage");
                 //Affichage résumé
             }
         }
 
-        make_ville_default( hConsole);
+
+        //Surligne le nouveau choix et met les autres choix à la normal
+        make_ville_default(hConsole, position_choix);
 
         if (index == 1) {
             gotoLigCol(8, position_choix);
@@ -1171,7 +1358,22 @@ void menu(){
             SetConsoleTextAttribute(hConsole, couleur_selection);
             printf("5 - Affichage resume\n");
         }
+
+        // Si on a changé de page juste avant, on recéer le menu
+        if(rebuild){
+            //Reconstruction
+            system("cls");
+            system("color f0");
+            make_cadre_menu(hConsole, x, y, largeur);
+            make_ville_default(hConsole, position_choix);
+            gotoLigCol(8, position_choix);
+            SetConsoleTextAttribute(hConsole, couleur_selection);
+            printf("1 - Voir les villes");
+            index = 1;
+        }
     }
+
+
 }
 
 /////////////// Main ///////////////
@@ -1182,9 +1384,6 @@ int main() {
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
     menu();
-
-
-    scanf("%d", pPremiereCentrale);
 
     return 0;
 }
