@@ -27,6 +27,7 @@ typedef struct ville {
     int codePostal;
     char nom[30];
     struct ville * villeSuivante;
+    struct ville * villePrecedente;
 } Tville;
 //Pointeur associé à la structure
 typedef Tville * PTville;
@@ -113,6 +114,25 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
     }
 
     return puissance_restante;
+}
+
+
+int get_puissance_recu(PTville pville){
+    PTcentrale pcentrale = pPremiereCentrale;
+    PTligneElectrique pligne;
+    int compteur = 0;
+    if (nbcentrales){
+        while (pcentrale){
+            pligne = pcentrale->villeDependante;
+            while (pligne && pligne->villeDesservie){
+                if (pligne->villeDesservie == pville) compteur += pligne->puissance;
+                pligne = pligne->ligneSuivante;
+            }
+            pcentrale = pcentrale->ptsuivant;
+        }
+    }
+
+    return compteur;
 }
 
 
@@ -693,7 +713,10 @@ int ajouter_ville(int code_postal, char nom_ville[]){
         while (pville->villeSuivante) pville = pville->villeSuivante;
 
         pville->villeSuivante = (PTville) malloc(sizeof (Tville));
+        pville->villeSuivante->villePrecedente = pville;
         pville = pville->villeSuivante;
+    } else{
+        pville->villePrecedente = NULL;
     }
 
     pville->codePostal = code_postal;
@@ -1111,6 +1134,11 @@ void affichage_ville(HANDLE hConsole){
     gotoLigCol(y + 20, x + 2);
     printf("Entree pour valider");
 
+    PTville pville = pPremiereVille;
+    int i;
+    // 0=Ajouter, 1=Supprimer
+    int index = 0;
+
     while (1){
         //Si il n'y a pas de ville
         if (!nbville){
@@ -1121,11 +1149,75 @@ void affichage_ville(HANDLE hConsole){
             gotoLigCol(y + 13, x + 18);
             printf("PAS DE VILLE     ");
             gotoLigCol(y + 16, x + 1);
-            printf("                            ");
+            printf("                                  ");
         }
         else{
-            //pointer sur la ville
+            //Affichage des informations
+            gotoLigCol(y + 11, x + 13);
+            printf("                      ");
+            gotoLigCol(y + 12, x + 15);
+            printf("                    ");
+            gotoLigCol(y + 13, x + 18);
+            printf("                 ");
+
+            gotoLigCol(y + 11, x + 13);
+            printf("%s", pville->nom);
+            gotoLigCol(y + 12, x + 15);
+            printf("%d", pville->codePostal);
+            gotoLigCol(y + 13, x + 18);
+            printf("%d MW", get_puissance_recu(pville));
         }
+
+        i = lireCaract();
+
+        //Fleche droite
+        if (i == 477){
+            if (pville->villeSuivante) pville = pville->villeSuivante;
+        }
+        //Fleche gauche
+        else if(i == 475){
+            if (pville->villePrecedente) pville = pville->villePrecedente;
+        }
+        //Fleche bas
+        else if(i == 480 && index != 1){
+            index = 1;
+            gotoLigCol(y + 15, x + 2);
+            printf("[ ]Ajouter nouvelle ville");
+            gotoLigCol(y + 16, x + 2);
+            printf("[*]Supprimer cette ville");
+        }
+        //Fleche haut
+        else if(i == 472 && index != 0){
+            index = 0;
+            gotoLigCol(y + 15, x + 2);
+            printf("[*]Ajouter nouvelle ville");
+            gotoLigCol(y + 16, x + 2);
+            printf("[ ]Supprimer cette ville");
+        }
+        //Echap
+        else if(i == 27) break;
+
+        //Entre
+        else if (i == 13){
+            //Supression ville
+            if (index == 1){
+                if (pville->villePrecedente) {
+
+                    pville = pville->villePrecedente;
+                    supprimer_ville(pville->villeSuivante->codePostal);
+                }
+                else if (pville->villeSuivante){
+                    pville = pville->villeSuivante;
+                    supprimer_ville(pville->villePrecedente->codePostal);
+                }
+                else {
+                    supprimer_ville(pville->codePostal);
+                    pville = pPremiereVille;
+                }
+            }
+        }
+
+
     }
 
 }
@@ -1273,10 +1365,6 @@ void menu(){
     HANDLE hConsole=GetStdHandle(STD_OUTPUT_HANDLE);
     system("color f0");
 
-
-    affichage_ville(hConsole);
-    scanf("%d", i);
-
     int index = 1;
     int couleur_selection = 113;
     int rebuild;
@@ -1304,9 +1392,10 @@ void menu(){
         else if (i == 13){ //Entrée
             gotoLigCol(1, 25);
             if (index == 1){
-                rebuild = 1;
-                printf("Villes");
                 //afficher les villes
+                rebuild = 1;
+                affichage_ville(hConsole);
+
             } else if (index == 2){
                 rebuild = 1;
                 printf("Centrales");
@@ -1382,6 +1471,13 @@ int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
     pPremiereVille = (PTville) malloc(sizeof (Tville));
+
+    ajouter_ville(95270, "Chaumontel");
+    ajout_centrale(1, 100, "une");
+    ajout_centrale(2, 250, "deux");
+    ajouter_connexion(pPremiereCentrale, pPremiereVille, 100);
+    ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
+    ajouter_ville(56100, "Lorient");
 
     menu();
 
