@@ -760,6 +760,7 @@ int supprimer_ville(int code_postal){
     else if(pville->codePostal == code_postal){
         //On change l'adresse du pointeur pPremiereVille
         pPremiereVille = pville->villeSuivante;
+        pville->villeSuivante->villePrecedente = NULL;
         nbville--;
         return 1;
     }
@@ -768,6 +769,9 @@ int supprimer_ville(int code_postal){
         //Se place sur la ville précédent la suppression
         while (pville->villeSuivante->codePostal != code_postal) pville = pville->villeSuivante;
         pville->villeSuivante = pville->villeSuivante->villeSuivante;
+        if (pville->villeSuivante){
+            pville->villeSuivante->villePrecedente = pville;
+        }
         nbville--;
         return 1;
     }
@@ -1087,6 +1091,19 @@ void make_rectangle(HANDLE hConsole, int largeur, int hauteur){
     printf("%c", cangleDB);
 }
 
+void make_ligne_horizontal(HANDLE hConsole, int largeur, int ligne, int colonne){
+    gotoLigCol(ligne, colonne);
+    for (int i = 0; i < largeur; ++i) {
+        printf("%c", chorizontal);
+    }
+}
+
+void affichage_centrale(HANDLE hConsole){
+    system("cls");
+    system("color f0");
+    make_ligne_horizontal(hConsole, 10, 6,8);
+}
+
 
 void make_dessin_maison(int posX, int posY){
     gotoLigCol(posX + 1, posY + 1);
@@ -1108,7 +1125,43 @@ void make_dessin_maison(int posX, int posY){
 
 }
 
+void graph_ajouter_ville(HANDLE hConsole){
+    int code_postal = 0;
+    char nom[50];
+    int retour = 0;
+
+    system("cls");
+    system("color f0");
+    make_rectangle(hConsole, 35, 22);
+    make_dessin_maison(y + 1, x + 9);
+
+    gotoLigCol(y + 11, x + 2);
+    printf("Nom ville:");
+    gotoLigCol(y + 12, x + 2);
+    printf("Code postal:");
+    gotoLigCol(y + 14, x + 2);
+    printf("Appuyez sur entree pour continuer");
+
+    gotoLigCol(y + 11, x + 13);
+    scanf("%s", &nom);
+    gotoLigCol(y + 12, x + 15);
+    scanf("%d", &code_postal);
+
+    retour = ajouter_ville(code_postal, nom);
+    if (retour){
+        gotoLigCol(y + 15, x + 2);
+        printf("La ville a bien ete creee");
+    }
+    else {
+        gotoLigCol(y + 15, x + 2);
+        printf("Le code postal est deja utilise");
+    }
+    sleep(5);
+}
+
+
 void affichage_ville(HANDLE hConsole){
+    creation:
     system("cls");
     system("color f0");
     make_rectangle(hConsole, 35, 22);
@@ -1139,6 +1192,7 @@ void affichage_ville(HANDLE hConsole){
     // 0=Ajouter, 1=Supprimer
     int index = 0;
 
+
     while (1){
         //Si il n'y a pas de ville
         if (!nbville){
@@ -1150,6 +1204,9 @@ void affichage_ville(HANDLE hConsole){
             printf("PAS DE VILLE     ");
             gotoLigCol(y + 16, x + 1);
             printf("                                  ");
+            index = 0;
+            gotoLigCol(y + 15, x + 2);
+            printf("[*]Ajouter nouvelle ville");
         }
         else{
             //Affichage des informations
@@ -1179,7 +1236,7 @@ void affichage_ville(HANDLE hConsole){
             if (pville->villePrecedente) pville = pville->villePrecedente;
         }
         //Fleche bas
-        else if(i == 480 && index != 1){
+        else if(i == 480 && index != 1 && nbville){
             index = 1;
             gotoLigCol(y + 15, x + 2);
             printf("[ ]Ajouter nouvelle ville");
@@ -1187,7 +1244,7 @@ void affichage_ville(HANDLE hConsole){
             printf("[*]Supprimer cette ville");
         }
         //Fleche haut
-        else if(i == 472 && index != 0){
+        else if(i == 472 && index != 0 && nbville){
             index = 0;
             gotoLigCol(y + 15, x + 2);
             printf("[*]Ajouter nouvelle ville");
@@ -1215,11 +1272,12 @@ void affichage_ville(HANDLE hConsole){
                     pville = pPremiereVille;
                 }
             }
+            else if (index == 0){
+                graph_ajouter_ville(hConsole);
+                goto creation;
+            }
         }
-
-
     }
-
 }
 
 
@@ -1338,7 +1396,6 @@ void make_ville_default(HANDLE hConsole, int position_choix){
 
     SetConsoleTextAttribute(hConsole, 15*16);
 
-
     gotoLigCol(8, position_choix);
     printf("1 - Voir les villes");
     gotoLigCol(9, position_choix);
@@ -1351,13 +1408,14 @@ void make_ville_default(HANDLE hConsole, int position_choix){
     printf("5 - Affichage resume\n");
 }
 
+
+
 /*
  * Gestion du menu
  */
 void menu(){
     int i;
     int largeur = 40;
-
     int position_choix = 11; //x + 3
 
     //Nettoyage et configuration de la console
@@ -1478,6 +1536,8 @@ int main() {
     ajouter_connexion(pPremiereCentrale, pPremiereVille, 100);
     ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
     ajouter_ville(56100, "Lorient");
+    ajouter_ville(75000, "Paris");
+    ajouter_ville(12223, "Autre");
 
     menu();
 
