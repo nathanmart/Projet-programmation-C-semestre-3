@@ -1098,10 +1098,96 @@ void make_ligne_horizontal(HANDLE hConsole, int largeur, int ligne, int colonne)
     }
 }
 
+void make_dessin_centrale(int posX, int posY){
+    gotoLigCol(posX, posY);
+    printf("   ___");
+    gotoLigCol(posX + 1, posY);
+    printf("   | |");
+    gotoLigCol(posX + 2, posY);
+    printf("  /   \\");
+    gotoLigCol(posX + 3, posY);
+    printf(" /     \\");
+    gotoLigCol(posX + 4, posY);
+    printf(" -------");
+}
+
+/*
+ * cote = 0 -> fleche gauche
+ * cote = 1 -> fleche droite
+ * cote = 2 --> bouton +
+ * cote = 3 --> bouton Edit
+ */
+void make_fleche(int cote){
+    for (int i = 0; i < 5; ++i) {
+        if (cote == 0) {
+            //Carré de gauche
+            gotoLigCol(y + 2, x + 3 + i);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 4, x + 3 + i);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 2 + 1, x + 3);
+            printf("%c", cvertical);
+            gotoLigCol(y + 2 + 1, x + 3 + 4);
+            printf("%c", cvertical);
+        }
+        else if (cote == 1){
+            //Carré de droite
+            gotoLigCol(y + 2, x + 3 + i + 25);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 4, x + 3 + i + 25);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 2 + 1, x + 3 + 25);
+            printf("%c", cvertical);
+            gotoLigCol(y + 2 + 1, x + 3 + 4 + 25);
+            printf("%c", cvertical);
+        } else if (cote == 2){
+            //Bouton +
+            gotoLigCol(y + 10, x + 3 + i);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 12, x + 3 + i);
+            printf("%c", chorizontal);
+            gotoLigCol(y + 10 + 1, x + 3);
+            printf("%c", cvertical);
+            gotoLigCol(y + 10 + 1, x + 3 + 4);
+            printf("%c", cvertical);
+        }
+    }
+    if (cote == 0) {
+        gotoLigCol(y + 3, x + 4);
+        printf("<--");
+    } else if (cote == 1){
+        gotoLigCol(y + 3, x + 29);
+        printf("-->");
+    } else if (cote == 2){
+
+    }
+}
+
+
+
 void affichage_centrale(HANDLE hConsole){
     system("cls");
     system("color f0");
-    make_ligne_horizontal(hConsole, 10, 6,8);
+    make_rectangle(hConsole, 35, 20);
+    make_dessin_centrale(y + 1, x + 12);
+
+    make_fleche(0);
+    make_fleche(1);
+    make_fleche(2);
+
+    gotoLigCol(y + 6, x + 2);
+    printf("Nom:");
+    gotoLigCol(y + 7, x + 2);
+    printf("Code:");
+    gotoLigCol(y + 8, x + 2);
+    printf("Nom:");
+    printf("Puissance max:");
+    gotoLigCol(y + 9, x + 2);
+    printf("Puissance restante:");
+
+
+
+    scanf("%d", x);
 }
 
 
@@ -1418,6 +1504,7 @@ void menu(){
     int largeur = 40;
     int position_choix = 11; //x + 3
 
+    rebuild:
     //Nettoyage et configuration de la console
     system("cls");
     HANDLE hConsole=GetStdHandle(STD_OUTPUT_HANDLE);
@@ -1425,7 +1512,7 @@ void menu(){
 
     int index = 1;
     int couleur_selection = 113;
-    int rebuild;
+
 
     //Surligne le pemier choix
     make_cadre_menu(hConsole, x, y, largeur);
@@ -1436,7 +1523,6 @@ void menu(){
 
     while (1) {
         i = lireCaract();
-        rebuild = 0;
 
         if (i == 472 && index > 1)index--;//Fleche haut
 
@@ -1444,30 +1530,30 @@ void menu(){
 
         else if (i == 27) { //Echap
             if (confirmer_quitter(hConsole)) break;
-            else rebuild = 1;
+            else goto rebuild;
         }
 
         else if (i == 13){ //Entrée
             gotoLigCol(1, 25);
             if (index == 1){
                 //afficher les villes
-                rebuild = 1;
                 affichage_ville(hConsole);
+                goto rebuild;
 
             } else if (index == 2){
-                rebuild = 1;
-                printf("Centrales");
                 //Afficher les centrales
+                affichage_centrale(hConsole);
+                goto rebuild;
             } else if (index == 3){
-                rebuild = 1;
+                goto rebuild;
                 printf("Enrengistrer");
                 //Enrengistrer dans un fichier
             } else if (index == 4){
-                rebuild = 1;
+                goto rebuild;
                 printf("Charger");
                 //Charger un fichier
             } else if (index == 5){
-                rebuild = 1;
+                goto rebuild;
                 printf("Affichage");
                 //Affichage résumé
             }
@@ -1507,17 +1593,7 @@ void menu(){
         }
 
         // Si on a changé de page juste avant, on recéer le menu
-        if(rebuild){
-            //Reconstruction
-            system("cls");
-            system("color f0");
-            make_cadre_menu(hConsole, x, y, largeur);
-            make_ville_default(hConsole, position_choix);
-            gotoLigCol(8, position_choix);
-            SetConsoleTextAttribute(hConsole, couleur_selection);
-            printf("1 - Voir les villes");
-            index = 1;
-        }
+
     }
 
 
