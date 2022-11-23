@@ -12,14 +12,14 @@
 
 // Indice ASCII des caractères d'affichage
 // A changer si spécificité sur la machine d'execution
-int cvertical=186;
-int chorizontal=205;
-int cangleGH=201;
-int cangleGB=200;
-int cangleDH=187;
-int cangleDB=188;
-int cDoubleAngleGauche = 204;
-int cDoubleAngleDroite = 185;
+#define cvertical 186
+#define chorizontal 205
+#define cangleGH 201
+#define cangleGB 200
+#define cangleDH 187
+#define cangleDB 188
+#define cDoubleAngleGauche 204
+#define cDoubleAngleDroite 185
 
 
 //Structure des villes
@@ -61,6 +61,7 @@ typedef Tcentrale * PTcentrale;
 
 //On utilise ici des variables globales
 
+//Variable globales
 //Création pointeurs vers les centrales et les villes
 PTcentrale pPremiereCentrale;
 PTville pPremiereVille;
@@ -102,7 +103,7 @@ PTville get_adresse_ville(int code_postal){
 
 
 /*
- * Cette fonction renvoie la puissance restrance d'une centrale
+ * Cette fonction renvoie la puissance restante d'une centrale
  */
 int get_puissance_restante_centrale(PTcentrale pcentral){
     int puissance_restante = pcentral->puissance_max;
@@ -117,6 +118,9 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
 }
 
 
+/*
+ * Cette fonction renvoie la puissance totale reçue d'une ville
+ */
 int get_puissance_recu(PTville pville){
     PTcentrale pcentrale = pPremiereCentrale;
     PTligneElectrique pligne;
@@ -131,9 +135,9 @@ int get_puissance_recu(PTville pville){
             pcentrale = pcentrale->ptsuivant;
         }
     }
-
     return compteur;
 }
+
 
 
 /////////////// Fonctions de développement ///////////////
@@ -385,13 +389,14 @@ int check_existance_centrale(int code_centrale){
 
 /*
  * Cette fonction vérifie si la puissance que l'on veut prendre à la centrale est disponible
- * Renvoie 1 si il reste assez de puissance
- * Renvoi 0 si il n'y a plus assez de puissance
+ * Renvoie 1 s'il reste assez de puissance
+ * Renvoi 0 s'il n'y a plus assez de puissance
  */
 int check_puissance_suffisante(PTcentrale pcentrale, int puissance){
     if (get_puissance_restante_centrale(pcentrale) >= puissance) return 1;
     else return 0;
 }
+
 
 /*
  * Vérifie si une connexion entre une centrale et une ville existe
@@ -418,47 +423,6 @@ int check_code_postal_utilise(int code_postal){
     while (pville && nbville){
         if (pville->codePostal == code_postal) return 1;
         pville = pville->villeSuivante;
-    }
-    return 0;
-}
-
-
-/*
- * Cette fonction vérifie s'il ne manque pas de données pour la sauvegarde
- * Renvoie 0 si tout est bon
- * Renvoie 1 si une ville X n'a pas de nom
- * Renvoie 2 si la ville X à un code postal déjà utilisé
- * Renvoie 3 si la centrale X à un code de centrale déjà utilisé
- * Renvoie 4 si la centrale n'a pas de début de liste de lignes connectées
- * Renvoie 5 si la puissance restante dans la centrale est négative
- * Renvoie 6 si une ville à une puissance mais n'a pas de centrale assignée
- */
-int check_presauvegarde_fichier(){
-    PTcentrale pcentrale = pPremiereCentrale;
-    PTville pville = pPremiereVille;
-    PTligneElectrique pligne = NULL;
-
-    if(nbville){
-        while(pville){
-            if(! pville->nom) return 1;
-            else if(check_code_postal_utilise(pville->codePostal)) return 2;
-            pville = pville->villeSuivante;
-        }
-    }
-
-    if(nbcentrales){
-        while(pcentrale){
-            if(check_code_centrale_utilise(pcentrale->codeCentrale)) return 3;
-            else if(! pcentrale->villeDependante) return 4;
-            else if(get_puissance_restante_centrale(pcentrale) < 0) return 5;
-            pligne = pcentrale->villeDependante;
-            if(! pligne->puissance && ! pligne->villeDesservie)
-                while(pligne) {
-                    if (pligne->puissance && !pligne->villeDesservie) return 6;
-                    pligne = pligne->ligneSuivante;
-                }
-            pcentrale = pcentrale->ptsuivant;
-        }
     }
     return 0;
 }
@@ -610,6 +574,7 @@ int modifier_connexion(PTcentrale pcentrale, PTville pville, int puissance){
     return 0;
 }
 
+
 /*
  * Cette fonction permet d'ajouter une connexion entre une centrale et une ville
  * Signification valeur de retour:
@@ -694,6 +659,7 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
 }
 
 
+
 /////////////// Fonctions ville ///////////////
 
 /*
@@ -776,6 +742,7 @@ int supprimer_ville(int code_postal){
         return 1;
     }
 }
+
 
 
 /////////////// Fonctions sauvegarde ///////////////
@@ -888,10 +855,13 @@ int chargement_sauvegarde(char chemin[200]) {
 }
 
 
-/////////////// Fonctions graphique ///////////////
 
+/////////////// Fonctions graphique test ///////////////
 
-
+/*
+ * Cette fonction est une IHM rudimentaire
+ * Elle est utilisées pour les tests finaux
+ */
 void programme_console(){
     while(1){
         printf("Que voulez-vous faire?:\n");
@@ -1029,8 +999,12 @@ void programme_console(){
     }
 }
 
-/////////////// Graphique ///////////////
+/////////////// Graphique final ///////////////
+//EN COUR DE DVLP
 
+/*
+ * Cette fonction renvoyé le code du caractère clavier tapé
+ */
 int lireCaract(){
 
     char c=10;
@@ -1044,6 +1018,9 @@ int lireCaract(){
 }
 
 
+/*
+ * Cette fonction place le curseur à l'endroit souhaité dans la console
+ */
 void gotoLigCol( int lig, int col )
 {
     // ressources
@@ -1059,7 +1036,9 @@ void gotoLigCol( int lig, int col )
 int x = 8;
 int y = 2;
 
-
+/*
+ * Cette fonction dessine un rectangle
+ */
 void make_rectangle(HANDLE hConsole, int largeur, int hauteur){
     //Création de barres verticales
     for (int i = y; i < hauteur + y; i++){
@@ -1191,6 +1170,9 @@ void affichage_centrale(HANDLE hConsole){
 }
 
 
+/*
+ * Cette fonction dessine une maison
+ */
 void make_dessin_maison(int posX, int posY){
     gotoLigCol(posX + 1, posY + 1);
     printf("      ^     ");
@@ -1211,6 +1193,10 @@ void make_dessin_maison(int posX, int posY){
 
 }
 
+
+/*
+ * Parti de l'affichage des villes
+ */
 void graph_ajouter_ville(HANDLE hConsole){
     int code_postal = 0;
     char nom[50];
@@ -1225,8 +1211,6 @@ void graph_ajouter_ville(HANDLE hConsole){
     printf("Nom ville:");
     gotoLigCol(y + 12, x + 2);
     printf("Code postal:");
-    gotoLigCol(y + 14, x + 2);
-    printf("Appuyez sur entree pour continuer");
 
     gotoLigCol(y + 11, x + 13);
     scanf("%s", &nom);
@@ -1367,6 +1351,9 @@ void affichage_ville(HANDLE hConsole){
 }
 
 
+/*
+ * Affichage de confirmation de quitter le programme
+ */
 int confirmer_quitter(HANDLE hConsole){
     system("cls");
     system("color f0");
@@ -1418,7 +1405,6 @@ int confirmer_quitter(HANDLE hConsole){
         }
     }
 }
-
 
 
 /*
@@ -1475,12 +1461,14 @@ void make_cadre_menu(HANDLE hConsole, int x, int y, int largeur){
 
 }
 
+
 /*
  * Affichage des différents choix
  */
 void make_ville_default(HANDLE hConsole, int position_choix){
 
     SetConsoleTextAttribute(hConsole, 15*16);
+
 
     gotoLigCol(8, position_choix);
     printf("1 - Voir les villes");
@@ -1595,8 +1583,6 @@ void menu(){
         // Si on a changé de page juste avant, on recéer le menu
 
     }
-
-
 }
 
 /////////////// Main ///////////////
@@ -1615,6 +1601,10 @@ int main() {
     ajouter_ville(75000, "Paris");
     ajouter_ville(12223, "Autre");
 
+    //Programme graphique test
+    //programme_console();
+
+    // Programme graphique en cour de dvlp
     menu();
 
     return 0;
