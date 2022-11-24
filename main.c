@@ -638,6 +638,7 @@ int supprimer_connexion(PTcentrale pcentrale, PTville pville){
     //Cas où il n'y a qu'une seule connexion sur cette centrale
     if (! pligne->ligneSuivante){
         pligne->villeDesservie = NULL;
+        pligne->ligneSuivante = NULL;
         pligne->puissance = 0;
         nbconnexion --;
         return 1;
@@ -1096,7 +1097,10 @@ void make_dessin_centrale(int posX, int posY){
  * cote = 2 --> bouton +
  * cote = 3 --> bouton Edit
  */
-void make_fleche(int cote){
+void make_bouton(HANDLE hConsole, int cote, int couleur){
+    if (couleur) SetConsoleTextAttribute(hConsole, 113);
+    else SetConsoleTextAttribute(hConsole, 15*16);
+
     for (int i = 0; i < 5; ++i) {
         if (cote == 0) {
             //Carré de gauche
@@ -1119,54 +1123,174 @@ void make_fleche(int cote){
             printf("%c", cvertical);
             gotoLigCol(y + 2 + 1, x + 3 + 4 + 25);
             printf("%c", cvertical);
-        } else if (cote == 2){
-            //Bouton +
-            gotoLigCol(y + 10, x + 3 + i);
-            printf("%c", chorizontal);
-            gotoLigCol(y + 12, x + 3 + i);
-            printf("%c", chorizontal);
-            gotoLigCol(y + 10 + 1, x + 3);
-            printf("%c", cvertical);
-            gotoLigCol(y + 10 + 1, x + 3 + 4);
-            printf("%c", cvertical);
         }
     }
     if (cote == 0) {
         gotoLigCol(y + 3, x + 4);
-        printf("<--");
+        printf(" + ");
     } else if (cote == 1){
         gotoLigCol(y + 3, x + 29);
-        printf("-->");
-    } else if (cote == 2){
+        printf(" E ");
+    }
+}
 
+
+/*
+ * Cette fonction créé les boutons des centrales
+ * avec la couleur par defaut
+ */
+void make_bouton_centrale_default(HANDLE hConsole, int nb){
+    SetConsoleTextAttribute(hConsole, 15*16);
+    make_bouton(hConsole, 0, 0);
+    make_bouton(hConsole, 1, 0);
+
+    gotoLigCol(y + 11, x + 2);
+    printf("*AJOUTER CONNEXION*");
+
+    for (int i = 0; i < nb; ++i) {
+        gotoLigCol(y + 15 + (i * 3), x + 2);
+        printf("SUPPR");
+        gotoLigCol(y + 16 + (i * 3), x+2);
+        printf("MODIF");
     }
 }
 
 
 
-void affichage_centrale(HANDLE hConsole){
+int affichage_centrale(HANDLE hConsole){
+    PTcentrale pcentrale = pPremiereCentrale;
+    PTligneElectrique pligne;
+    int i;
+    int nb_connexion;
+    // 0 = nouvelle centrale, 1 = edit centrale, 2 = nouvelle connexion
+    // Ensuite, si impaire = supprimer, si paire = modifier
+    int index = 0;
+
+    // Partie centrale
+    rebuild_centrale:
     system("cls");
     system("color f0");
-    make_rectangle(hConsole, 35, 20);
     make_dessin_centrale(y + 1, x + 12);
-
-    make_fleche(0);
-    make_fleche(1);
-    make_fleche(2);
 
     gotoLigCol(y + 6, x + 2);
     printf("Nom:");
     gotoLigCol(y + 7, x + 2);
     printf("Code:");
     gotoLigCol(y + 8, x + 2);
-    printf("Nom:");
     printf("Puissance max:");
     gotoLigCol(y + 9, x + 2);
     printf("Puissance restante:");
+    gotoLigCol(y + 13, x + 2);
+    printf("Connexion avec les villes:");
 
+    // Gestion des données
 
+    while (1){
+        SetConsoleTextAttribute(hConsole, 15*16);
+        // Si il n'y a pas de centrale
+        if (!nbcentrales){
+            gotoLigCol(y + 6, x + 2);
+            printf("Nom: Pas de centrale");
+            gotoLigCol(y + 7, x + 2);
+            printf("Code: --");
+            gotoLigCol(y + 8, x + 2);
+            printf("Puissance max: --");
+            gotoLigCol(y + 9, x + 2);
+            printf("Puissance restante: --");
+        }
+        // Si il y a des centrales
+        else{
+            gotoLigCol(y + 6, x + 2);
+            printf("Nom: %s", pcentrale->nom);
+            gotoLigCol(y + 7, x + 2);
+            printf("Code: %d", pcentrale->codeCentrale);
+            gotoLigCol(y + 8, x + 2);
+            printf("Puissance max: %d", pcentrale->puissance_max);
+            gotoLigCol(y + 9, x + 2);
+            printf("Puissance restante: %d", get_puissance_restante_centrale(pcentrale));
+        }
 
-    scanf("%d", x);
+        // Affichage des connexions
+        pligne = pcentrale->villeDependante;
+        nb_connexion = 0;
+        while (pligne && pligne->villeDesservie){
+            gotoLigCol(y + 15 + (nb_connexion * 3), x + 8);
+            printf("Nom: %s", pligne->villeDesservie->nom);
+            gotoLigCol(y + 16 + (nb_connexion * 3), x + 8);
+            printf("Puissance: %d", pligne->puissance);
+
+            nb_connexion++;
+            pligne = pligne->ligneSuivante;
+        }
+
+        // Ajout d'elements graphique
+        make_rectangle(hConsole, 35, 15 + (3*nb_connexion));
+        make_bouton_centrale_default(hConsole, nb_connexion);
+
+        // Surlignage du bouton en cour
+        SetConsoleTextAttribute(hConsole, 113);
+        if (index == 0) make_bouton(hConsole, 0, 1);
+        else if (index == 1) make_bouton(hConsole, 1, 1);
+        else if (index == 2){
+            gotoLigCol(y + 11, x + 2);
+            printf("*AJOUTER CONNEXION*");
+        }
+        else if (index % 2 == 1){
+            gotoLigCol(y + 15 + (((index/2)-1) * 3), x + 2);
+            printf("SUPPR");
+        }
+         else if (index % 2 == 0){
+            gotoLigCol(y + 16 + ((index-3)/2) * 3, x + 2);
+            printf("MODIF");
+        }
+
+        // Lecture du clavier
+        i = lireCaract();
+        //Fleche droite
+        if (i == 477){
+            if (pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
+            goto rebuild_centrale;
+        }
+        //Fleche gauche
+        else if (i == 475){
+            if (pcentrale->ptprecedent) pcentrale = pcentrale->ptprecedent;
+            goto rebuild_centrale;
+        }
+        //Echap
+        else if (i == 27){
+            return 1;
+        }
+        //Fleche haut
+        else if (i == 472 && index > 0) index--;
+        //FLeche bas
+        else if (i == 480 && index < ((nb_connexion * 2) + 2)) index ++;
+        //Entrée
+        else if (i == 13){
+            if (index == 0){
+                //Ajouuter une centrale
+            }
+            else if (index == 1){
+                //Modifier la centrale
+            }
+            else if (index == 2){
+                //ajouter une connexion
+            }
+            //Supprimer connexion
+            else if (index % 2 == 1){
+                // On se place sur la première connexion
+                pligne = pcentrale->villeDependante;
+                for (int j = 0; j < (index-3)/2; ++j) {
+                    pligne = pligne->ligneSuivante;
+                }
+                supprimer_connexion(pcentrale, pligne->villeDesservie);
+                goto rebuild_centrale;
+
+            }
+            else if (index % 2 == 0){
+                //modifier connexion
+            }
+        }
+    }
 }
 
 
@@ -1465,7 +1589,7 @@ void make_cadre_menu(HANDLE hConsole, int x, int y, int largeur){
 /*
  * Affichage des différents choix
  */
-void make_ville_default(HANDLE hConsole, int position_choix){
+void make_menu_default(HANDLE hConsole, int position_choix){
 
     SetConsoleTextAttribute(hConsole, 15*16);
 
@@ -1504,7 +1628,7 @@ void menu(){
 
     //Surligne le pemier choix
     make_cadre_menu(hConsole, x, y, largeur);
-    make_ville_default(hConsole, position_choix);
+    make_menu_default(hConsole, position_choix);
     gotoLigCol(8, position_choix);
     SetConsoleTextAttribute(hConsole, couleur_selection);
     printf("1 - Voir les villes");
@@ -1549,7 +1673,7 @@ void menu(){
 
 
         //Surligne le nouveau choix et met les autres choix à la normal
-        make_ville_default(hConsole, position_choix);
+        make_menu_default(hConsole, position_choix);
 
         if (index == 1) {
             gotoLigCol(8, position_choix);
@@ -1593,13 +1717,16 @@ int main() {
     pPremiereVille = (PTville) malloc(sizeof (Tville));
 
     ajouter_ville(95270, "Chaumontel");
-    ajout_centrale(1, 100, "une");
-    ajout_centrale(2, 250, "deux");
-    ajouter_connexion(pPremiereCentrale, pPremiereVille, 100);
-    ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
     ajouter_ville(56100, "Lorient");
     ajouter_ville(75000, "Paris");
     ajouter_ville(12223, "Autre");
+    ajout_centrale(1, 100, "Bretagne");
+    ajout_centrale(2, 250, "IDF");
+    ajouter_connexion(pPremiereCentrale, pPremiereVille, 25);
+    ajouter_connexion(pPremiereCentrale, pPremiereVille->villeSuivante, 5);
+    ajouter_connexion(pPremiereCentrale, pPremiereVille->villeSuivante->villeSuivante, 7);
+    ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille->villeSuivante->villeSuivante, 75);
+
 
     //Programme graphique test
     //programme_console();
