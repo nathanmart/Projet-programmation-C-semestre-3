@@ -1936,7 +1936,7 @@ int main() {
 
 
     //Programme graphique test
-   // programme_console();
+    programme_console();
 
     // Programme graphique en cour de dvlp
     menu();
