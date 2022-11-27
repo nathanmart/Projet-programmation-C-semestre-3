@@ -21,7 +21,7 @@
 #define cDoubleAngleGauche 204
 #define cDoubleAngleDroite 185
 
-// Indice ASCII des caractères clavier
+// Indice des caractères clavier
 #define fleche_haut 472
 #define fleche_bas 480
 #define fleche_droite 477
