@@ -459,7 +459,6 @@ int modifier_centrale(int code_centrale, int puissance_max){
  * Cette fonction permet d'ajouter une centrale
  * Renvoie 0 si le code de la centrale est déja utilisé
  * Renvoie 1 si tout est bon
- * Renvoie 2 si existe déjà
  */
 int ajout_centrale(int code_centrale, int puissance_max, char nom_centrale[]){
     if(check_code_centrale_utilise(code_centrale)) return 0;
@@ -1155,8 +1154,87 @@ void make_bouton_centrale_default(HANDLE hConsole, int nb){
     }
 }
 
+/*
+ * Partie de l'affichage des modifications de centrales
+ */
+void grap_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
+    system("cls");
+    system("color f0");
+    make_dessin_centrale(y + 1, x + 12);
+
+    gotoLigCol(y + 6, x + 2);
+    printf("Nom: %s", pcentrale->nom);
+    gotoLigCol(y + 7, x + 2);
+    printf("Code: %d", pcentrale->codeCentrale);
+    gotoLigCol(y + 8, x + 2);
+    printf("Old puissance max: %d", pcentrale->puissance_max);
+    gotoLigCol(y + 9, x + 2);
+    printf("New puissance max:");
+
+    gotoLigCol(y + 11, x + 2);
+    printf("Appuyez sur Entree");
+
+    make_rectangle(hConsole, 35, 14);
+
+    int puissance_max;
+    gotoLigCol(y + 9, x + 21);
+    scanf("%d", &puissance_max);
+
+    int retour = modifier_centrale(pcentrale->codeCentrale, puissance_max);
+    gotoLigCol(y + 12, x + 2);
+    if (retour == 0) printf("ERREUR");
+    else if (retour == 1) printf("Nouvelle puissance accepte");
+    else if (retour == 2) {
+        printf("La puissance est insuffissante");
+        gotoLigCol(y + 13, x + 2);
+        printf("aux vues des connexions");
+    }
+
+    sleep(3);
+}
 
 
+/*
+ * Partie de l'affichage des ajouts de centrales
+ */
+void graph_ajouter_centrale(HANDLE hConsole){
+    system("cls");
+    system("color f0");
+    make_dessin_centrale(y + 1, x + 12);
+
+    gotoLigCol(y + 6, x + 2);
+    printf("Nom:");
+    gotoLigCol(y + 7, x + 2);
+    printf("Code:");
+    gotoLigCol(y + 8, x + 2);
+    printf("Puissance max:");
+
+    gotoLigCol(y + 10, x + 2);
+    printf("Appuyez sur Entree");
+
+    make_rectangle(hConsole, 35, 13);
+
+    char nom[50];
+    int code, puissance_max;
+
+    gotoLigCol(y + 6, x + 7);
+    scanf("%s", &nom);
+    gotoLigCol(y + 7, x + 8);
+    scanf("%d", &code);
+    gotoLigCol(y + 8, x + 17);
+    scanf("%d", &puissance_max);
+
+    int retour = ajout_centrale(code, puissance_max, nom);
+    gotoLigCol(y + 11, x + 2);
+    if (retour == 0) printf("Code deja utilise");
+    else if (retour == 1) printf("Centrale creee");
+
+    sleep(3);
+}
+
+/*
+ * Partie de l'affichage des centrales
+ */
 int affichage_centrale(HANDLE hConsole){
     PTcentrale pcentrale = pPremiereCentrale;
     PTligneElectrique pligne;
@@ -1172,6 +1250,7 @@ int affichage_centrale(HANDLE hConsole){
     system("color f0");
     make_dessin_centrale(y + 1, x + 12);
 
+    SetConsoleTextAttribute(hConsole, 15*16);
     gotoLigCol(y + 6, x + 2);
     printf("Nom:");
     gotoLigCol(y + 7, x + 2);
@@ -1184,7 +1263,6 @@ int affichage_centrale(HANDLE hConsole){
     printf("Connexion avec les villes:");
 
     // Gestion des données
-
     while (1){
         SetConsoleTextAttribute(hConsole, 15*16);
         // Si il n'y a pas de centrale
@@ -1223,7 +1301,7 @@ int affichage_centrale(HANDLE hConsole){
             pligne = pligne->ligneSuivante;
         }
 
-        // Ajout d'elements graphique
+        // Ajout elements graphique
         make_rectangle(hConsole, 35, 15 + (3*nb_connexion));
         make_bouton_centrale_default(hConsole, nb_connexion);
 
@@ -1267,10 +1345,12 @@ int affichage_centrale(HANDLE hConsole){
         //Entrée
         else if (i == 13){
             if (index == 0){
-                //Ajouuter une centrale
+                graph_ajouter_centrale(hConsole);
+                goto rebuild_centrale;
             }
             else if (index == 1){
-                //Modifier la centrale
+                grap_modifier_centrale(hConsole, pcentrale);
+                goto rebuild_centrale;
             }
             else if (index == 2){
                 //ajouter une connexion
@@ -1286,8 +1366,23 @@ int affichage_centrale(HANDLE hConsole){
                 goto rebuild_centrale;
 
             }
+            //Modifier connexion
             else if (index % 2 == 0){
-                //modifier connexion
+//                pligne = pcentrale->villeDependante;
+//                for (int j = 0; j < (index-3)/2; ++j) {
+//                    pligne = pligne->ligneSuivante;
+//                }
+//                gotoLigCol(y + 16 + ((index-3)/2) * 3, x + 19);
+//                SetConsoleTextAttribute(hConsole, 15*16);
+//                printf("                ");
+//                gotoLigCol(y + 16 + ((index-3)/2) * 3, x + 19);
+//                int puissance;
+//                scanf("%d", puissance);
+//                int retour = modifier_connexion(pcentrale, pligne->villeDesservie, puissance);
+//
+//
+//                sleep(3);
+//                goto rebuild_centrale;
             }
         }
     }
@@ -1350,7 +1445,7 @@ void graph_ajouter_ville(HANDLE hConsole){
         gotoLigCol(y + 15, x + 2);
         printf("Le code postal est deja utilise");
     }
-    sleep(5);
+    sleep(3);
 }
 
 
@@ -1729,7 +1824,7 @@ int main() {
 
 
     //Programme graphique test
-    //programme_console();
+    programme_console();
 
     // Programme graphique en cour de dvlp
     menu();
