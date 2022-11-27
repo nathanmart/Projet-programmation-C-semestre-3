@@ -494,13 +494,14 @@ int ajout_centrale(int code_centrale, int puissance_max, char nom_centrale[]){
  * Cette fonction permet de supprimer une centrale
  * Renvoie 0 si la centrale n'existe pas
  * Renvoie 1 si tout est bon
+ * Renvoie 2 en cas d'erreur
  */
 int supprimer_centrale(int code_centrale){
     if(! check_existance_centrale(code_centrale)) return 0;
 
     PTcentrale pcentrale = pPremiereCentrale;
 
-    // Dans le cas où il n'y a q'une seule centrale
+    // Dans le cas où il n'y a qu'une seule centrale
     if(! pcentrale->ptsuivant){
         pcentrale->ptprecedent = NULL;
         pcentrale->ptsuivant = NULL;
@@ -511,15 +512,20 @@ int supprimer_centrale(int code_centrale){
         return 1;
     }
 
-        // Dans le cas où la centrale supprimée est la première
+    // Dans le cas où la centrale supprimée est la première
     else if(pcentrale->codeCentrale == code_centrale){
+        pcentrale->ptsuivant->ptprecedent = NULL;
         pPremiereCentrale = pcentrale->ptsuivant;
         nbcentrales --;
         return 1;
     }
     // Dans le cas où la centrale supprimée est la dernière
     while(pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
-    if(pcentrale->codeCentrale == code_centrale) pcentrale->ptprecedent->ptsuivant = NULL;
+    if(pcentrale->codeCentrale == code_centrale){
+        pcentrale->ptprecedent->ptsuivant = NULL;
+        nbcentrales --;
+        return 1;
+    }
 
     else {
         pcentrale = pPremiereCentrale;
@@ -533,6 +539,7 @@ int supprimer_centrale(int code_centrale){
             pcentrale = pcentrale->ptsuivant;
         }
     }
+    return 2;
 }
 
 
@@ -1095,17 +1102,16 @@ void make_dessin_centrale(int posX, int posY){
 }
 
 /*
- * cote = 0 -> fleche gauche
- * cote = 1 -> fleche droite
- * cote = 2 --> bouton +
- * cote = 3 --> bouton Edit
+ * cote = 0 --> bouton +
+ * cote = 1 --> bouton Edit
+ * cote = 2 --> bouton Sup
  */
 void make_bouton(HANDLE hConsole, int cote, int couleur){
     if (couleur) SetConsoleTextAttribute(hConsole, 113);
     else SetConsoleTextAttribute(hConsole, 15*16);
 
     for (int i = 0; i < 5; ++i) {
-        if (cote == 0) {
+        if (cote == 0 || cote == 2) {
             //Carré de gauche
             gotoLigCol(y + 2, x + 3 + i);
             printf("%c", chorizontal);
@@ -1134,6 +1140,9 @@ void make_bouton(HANDLE hConsole, int cote, int couleur){
     } else if (cote == 1){
         gotoLigCol(y + 3, x + 29);
         printf(" E ");
+    } else if (cote == 2){
+        gotoLigCol(y + 3, x + 4);
+        printf(" X ");
     }
 }
 
@@ -1147,8 +1156,6 @@ void make_bouton_centrale_default(HANDLE hConsole, int nb){
     make_bouton(hConsole, 0, 0);
     make_bouton(hConsole, 1, 0);
 
-    gotoLigCol(y + 11, x + 2);
-    printf("*AJOUTER CONNEXION*");
 
     for (int i = 0; i < nb; ++i) {
         gotoLigCol(y + 15 + (i * 3), x + 2);
@@ -1198,40 +1205,80 @@ void graph_ajouter_connexion(HANDLE hConsole, PTcentrale pcentrale){
 /*
  * Partie de l'affichage des modifications de centrales
  */
-void grap_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
+void graph_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
     system("cls");
     system("color f0");
     make_dessin_centrale(y + 1, x + 12);
 
+    make_bouton(hConsole, 1, 0);
+    make_bouton(hConsole, 2, 1);
+
+    SetConsoleTextAttribute(hConsole, 15*16);
     gotoLigCol(y + 6, x + 2);
     printf("Nom: %s", pcentrale->nom);
     gotoLigCol(y + 7, x + 2);
     printf("Code: %d", pcentrale->codeCentrale);
     gotoLigCol(y + 8, x + 2);
     printf("Old puissance max: %d", pcentrale->puissance_max);
-    gotoLigCol(y + 9, x + 2);
-    printf("New puissance max:");
-
     gotoLigCol(y + 11, x + 2);
     printf("Appuyez sur Entree");
-
     make_rectangle(hConsole, 35, 14);
 
-    int puissance_max;
-    gotoLigCol(y + 9, x + 21);
-    scanf("%d", &puissance_max);
+    // 0 = supprimer, 1 = modifier
+    int index =0;
+    int i;
 
-    int retour = modifier_centrale(pcentrale->codeCentrale, puissance_max);
-    gotoLigCol(y + 12, x + 2);
-    if (retour == 0) printf("ERREUR");
-    else if (retour == 1) printf("Nouvelle puissance accepte");
-    else if (retour == 2) {
-        printf("La puissance est insuffissante");
-        gotoLigCol(y + 13, x + 2);
-        printf("aux vues des connexions");
+    while (1){
+        i = lireCaract();
+
+        //Fleche gauche
+        if (i == 475 && index == 1){
+            make_bouton(hConsole, 1, 0);
+            make_bouton(hConsole, 2, 1);
+            index = 0;
+        }
+        //Fleche droite
+        else if (i == 477 && index == 0){
+            make_bouton(hConsole, 1, 1);
+            make_bouton(hConsole, 2, 0);
+            index = 1;
+        }
+        //Entrée
+        else if (i == 13){
+            //Supprimer
+            if (index == 0){
+                int retour = supprimer_centrale(pcentrale->codeCentrale);
+                gotoLigCol(y + 10, x + 2);
+                if (retour == 1) printf("Centrale suprrimee");
+                else if (retour == 0) printf("Inexistant");
+                else if (retour == 2) printf("ERREUR");
+
+                sleep(3);
+                break;
+            }
+            // Modifier
+            else if (index == 1){
+                gotoLigCol(y + 9, x + 2);
+                printf("New puissance max:");
+
+                int puissance_max;
+                gotoLigCol(y + 9, x + 21);
+                scanf("%d", &puissance_max);
+
+                int retour = modifier_centrale(pcentrale->codeCentrale, puissance_max);
+                gotoLigCol(y + 12, x + 2);
+                if (retour == 0) printf("ERREUR");
+                else if (retour == 1) printf("Nouvelle puissance accepte");
+                else if (retour == 2) {
+                    printf("La puissance est insuffissante");
+                    gotoLigCol(y + 13, x + 2);
+                    printf("aux vues des connexions");
+                }
+                sleep(3);
+                break;
+            }
+        }
     }
-
-    sleep(3);
 }
 
 
@@ -1277,6 +1324,7 @@ void graph_ajouter_centrale(HANDLE hConsole){
  * Partie de l'affichage des centrales
  */
 int affichage_centrale(HANDLE hConsole){
+
     PTcentrale pcentrale = pPremiereCentrale;
     PTligneElectrique pligne;
     int i;
@@ -1287,6 +1335,7 @@ int affichage_centrale(HANDLE hConsole){
 
     // Partie centrale
     rebuild_centrale:
+
     index = 0;
     system("cls");
     system("color f0");
@@ -1328,6 +1377,9 @@ int affichage_centrale(HANDLE hConsole){
             printf("Puissance max: %d", pcentrale->puissance_max);
             gotoLigCol(y + 9, x + 2);
             printf("Puissance restante: %d", get_puissance_restante_centrale(pcentrale));
+
+            gotoLigCol(y + 11, x + 2);
+            printf("*AJOUTER CONNEXION*");
         }
 
         // Affichage des connexions
@@ -1335,7 +1387,7 @@ int affichage_centrale(HANDLE hConsole){
         nb_connexion = 0;
         while (pligne && pligne->villeDesservie){
             gotoLigCol(y + 15 + (nb_connexion * 3), x + 8);
-            printf("Nom: %s", pligne->villeDesservie->nom);
+            printf("Nom: %s(%d)", pligne->villeDesservie->nom, pligne->villeDesservie->codePostal);
             gotoLigCol(y + 16 + (nb_connexion * 3), x + 8);
             printf("Puissance: %d", pligne->puissance);
 
@@ -1368,13 +1420,17 @@ int affichage_centrale(HANDLE hConsole){
         i = lireCaract();
         //Fleche droite
         if (i == 477){
-            if (pcentrale->ptsuivant) pcentrale = pcentrale->ptsuivant;
-            goto rebuild_centrale;
+            if (pcentrale->ptsuivant) {
+                pcentrale = pcentrale->ptsuivant;
+                goto rebuild_centrale;
+            }
         }
         //Fleche gauche
         else if (i == 475){
-            if (pcentrale->ptprecedent) pcentrale = pcentrale->ptprecedent;
-            goto rebuild_centrale;
+            if (pcentrale->ptprecedent) {
+                pcentrale = pcentrale->ptprecedent;
+                goto rebuild_centrale;
+            }
         }
         //Echap
         else if (i == 27){
@@ -1383,7 +1439,9 @@ int affichage_centrale(HANDLE hConsole){
         //Fleche haut
         else if (i == 472 && index > 0) index--;
         //FLeche bas
-        else if (i == 480 && index < ((nb_connexion * 2) + 2)) index ++;
+        else if (i == 480 && index < ((nb_connexion * 2) + 2)){
+            if (index == 0 || (index == 1 && nbcentrales)) index ++;
+        }
         //Entrée
         else if (i == 13){
             if (index == 0){
@@ -1391,7 +1449,8 @@ int affichage_centrale(HANDLE hConsole){
                 goto rebuild_centrale;
             }
             else if (index == 1){
-                grap_modifier_centrale(hConsole, pcentrale);
+                graph_modifier_centrale(hConsole, pcentrale);
+                pcentrale = pPremiereCentrale;
                 goto rebuild_centrale;
             }
             else if (index == 2){
@@ -1866,7 +1925,6 @@ int main() {
     ajouter_connexion(pPremiereCentrale, pPremiereVille, 100);
     ajouter_connexion(pPremiereCentrale, pPremiereVille->villeSuivante, 100);
     ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
-
 
 
     //Programme graphique test
