@@ -21,6 +21,14 @@
 #define cDoubleAngleGauche 204
 #define cDoubleAngleDroite 185
 
+// Indice ASCII des caractères clavier
+#define fleche_haut 472
+#define fleche_bas 480
+#define fleche_droite 477
+#define fleche_gauche 475
+#define etree 13
+#define echap 27
+
 
 //Structure des villes
 typedef struct ville {
@@ -1232,19 +1240,19 @@ void graph_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
         i = lireCaract();
 
         //Fleche gauche
-        if (i == 475 && index == 1){
+        if (i == fleche_gauche && index == 1){
             make_bouton(hConsole, 1, 0);
             make_bouton(hConsole, 2, 1);
             index = 0;
         }
         //Fleche droite
-        else if (i == 477 && index == 0){
+        else if (i == fleche_droite && index == 0){
             make_bouton(hConsole, 1, 1);
             make_bouton(hConsole, 2, 0);
             index = 1;
         }
         //Entrée
-        else if (i == 13){
+        else if (i == etree){
             //Supprimer
             if (index == 0){
                 int retour = supprimer_centrale(pcentrale->codeCentrale);
@@ -1419,31 +1427,31 @@ int affichage_centrale(HANDLE hConsole){
         // Lecture du clavier
         i = lireCaract();
         //Fleche droite
-        if (i == 477){
+        if (i == fleche_droite){
             if (pcentrale->ptsuivant) {
                 pcentrale = pcentrale->ptsuivant;
                 goto rebuild_centrale;
             }
         }
         //Fleche gauche
-        else if (i == 475){
+        else if (i == fleche_gauche){
             if (pcentrale->ptprecedent) {
                 pcentrale = pcentrale->ptprecedent;
                 goto rebuild_centrale;
             }
         }
         //Echap
-        else if (i == 27){
+        else if (i == echap){
             return 1;
         }
         //Fleche haut
-        else if (i == 472 && index > 0) index--;
+        else if (i == fleche_haut && index > 0) index--;
         //FLeche bas
-        else if (i == 480 && index < ((nb_connexion * 2) + 2)){
+        else if (i == fleche_bas && index < ((nb_connexion * 2) + 2)){
             if (index == 0 || (index == 1 && nbcentrales)) index ++;
         }
         //Entrée
-        else if (i == 13){
+        else if (i == etree){
             if (index == 0){
                 graph_ajouter_centrale(hConsole);
                 goto rebuild_centrale;
@@ -1622,15 +1630,15 @@ void affichage_ville(HANDLE hConsole){
         i = lireCaract();
 
         //Fleche droite
-        if (i == 477){
+        if (i == fleche_droite){
             if (pville->villeSuivante) pville = pville->villeSuivante;
         }
         //Fleche gauche
-        else if(i == 475){
+        else if(i == fleche_gauche){
             if (pville->villePrecedente) pville = pville->villePrecedente;
         }
         //Fleche bas
-        else if(i == 480 && index != 1 && nbville){
+        else if(i == fleche_bas && index != 1 && nbville){
             index = 1;
             gotoLigCol(y + 15, x + 2);
             printf("[ ]Ajouter nouvelle ville");
@@ -1638,7 +1646,7 @@ void affichage_ville(HANDLE hConsole){
             printf("[*]Supprimer cette ville");
         }
         //Fleche haut
-        else if(i == 472 && index != 0 && nbville){
+        else if(i == fleche_haut && index != 0 && nbville){
             index = 0;
             gotoLigCol(y + 15, x + 2);
             printf("[*]Ajouter nouvelle ville");
@@ -1646,10 +1654,10 @@ void affichage_ville(HANDLE hConsole){
             printf("[ ]Supprimer cette ville");
         }
         //Echap
-        else if(i == 27) break;
+        else if(i == echap) break;
 
-        //Entre
-        else if (i == 13){
+        //Entrée
+        else if (i == etree){
             //Supression ville
             if (index == 1){
                 if (pville->villePrecedente) {
@@ -1705,12 +1713,12 @@ int confirmer_quitter(HANDLE hConsole){
         i = lireCaract();
 
         //Entree
-        if (i == 13){
+        if (i == etree){
             if (index == 0) return 0;
             else return 1;
         }
         //Fleche droite
-        else if(i == 477){
+        else if(i == fleche_droite){
             gotoLigCol(y + 6, x + 6);
             SetConsoleTextAttribute(hConsole, 240);
             printf("[ ]NON");
@@ -1719,7 +1727,7 @@ int confirmer_quitter(HANDLE hConsole){
             index = 1;
         }
         //Fleche gauche
-        else if(i == 475){
+        else if(i == fleche_gauche){
             gotoLigCol(y + 6, x + 6);
             SetConsoleTextAttribute(hConsole, 240);
             printf("[*]NON");
@@ -1836,16 +1844,16 @@ void menu(){
     while (1) {
         i = lireCaract();
 
-        if (i == 472 && index > 1)index--;//Fleche haut
+        if (i == fleche_haut && index > 1)index--;//Fleche haut
 
-        else if (i == 480 && index < 5) index ++;//fleche bas
+        else if (i == fleche_bas && index < 5) index ++;//fleche bas
 
-        else if (i == 27) { //Echap
+        else if (i == echap) { //Echap
             if (confirmer_quitter(hConsole)) break;
             else goto rebuild;
         }
 
-        else if (i == 13){ //Entrée
+        else if (i == etree){ //Entrée
             gotoLigCol(1, 25);
             if (index == 1){
                 //afficher les villes
