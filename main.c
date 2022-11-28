@@ -1448,7 +1448,7 @@ int affichage_centrale(HANDLE hConsole){
         else if (i == fleche_haut && index > 0) index--;
         //FLeche bas
         else if (i == fleche_bas && index < ((nb_connexion * 2) + 2)){
-            if (index == 0 || (index == 1 && nbcentrales)) index ++;
+            if (index == 0 || nbcentrales) index ++;
         }
         //Entrée
         else if (i == etree){
@@ -1934,9 +1934,8 @@ int main() {
     ajouter_connexion(pPremiereCentrale, pPremiereVille->villeSuivante, 100);
     ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
 
-
     //Programme graphique test
-    programme_console();
+    //programme_console();
 
     // Programme graphique en cour de dvlp
     menu();
