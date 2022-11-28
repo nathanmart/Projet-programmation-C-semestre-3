@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <windows.h>
 #include <unistd.h>
+#include <dirent.h>
 
 // Indice ASCII des caractères d'affichage
 // A changer si spécificité sur la machine d'execution
@@ -26,7 +27,7 @@
 #define fleche_bas 480
 #define fleche_droite 477
 #define fleche_gauche 475
-#define etree 13
+#define entree 13
 #define echap 27
 
 
@@ -66,6 +67,13 @@ typedef struct centrale{
 }Tcentrale;
 //Pointeur associé à la structure
 typedef Tcentrale * PTcentrale;
+
+//Structure pour l'affichage des fichiers
+typedef struct fichier{
+    char nom[100];
+    struct fichier * ptsuivant;
+} Tfichier;
+typedef Tfichier * PTfichier;
 
 //On utilise ici des variables globales
 
@@ -1155,6 +1163,94 @@ void make_bouton(HANDLE hConsole, int cote, int couleur){
 }
 
 
+void graph_charger_fichier(HANDLE hConsole){
+    //Initialisation
+    system("cls");
+    system("color f0");
+    SetConsoleTextAttribute(hConsole, 15*16);
+    gotoLigCol(y + 1, x + 2);
+    printf("Chargement d'un fichier");
+    gotoLigCol(y + 2, x + 2);
+    printf("Entree pour valider");
+
+    PTfichier pPremierFichier = (PTfichier) malloc(sizeof(Tfichier));
+    PTfichier pfichier = pPremierFichier;
+    struct dirent *dir;
+    DIR *d = opendir(".");
+    char *p;
+    int compteur = 0;
+
+    // Lecture des fichiers
+    if(d){
+        while ((dir = readdir(d)) != NULL){
+            p = strchr(dir->d_name, '.');
+            if (p && !strcmp(p, ".tpgif")){
+                //Enrengistrement du nom des fichiers
+                if (compteur != 0){
+                    pfichier->ptsuivant = (PTfichier) malloc(sizeof(Tfichier));
+                    pfichier = pfichier->ptsuivant;
+                }
+                strcpy(pfichier->nom, dir->d_name);
+                pfichier->ptsuivant = NULL;
+                compteur++;
+            }
+        }
+        closedir(d);
+    }
+
+    //Cas où il n'y a pas de fichier
+    if (!compteur){
+        gotoLigCol(y + 4, x + 2);
+        printf("Aucun fichier dispo");
+        gotoLigCol(y + 5, x + 2);
+        printf("Retour au menu dans 5 secondes");
+        make_rectangle(hConsole, 35, 6);
+        sleep(5);
+        return;
+    }
+    //Cas où il y a des fichiers
+    pfichier = pPremierFichier;
+    for (int i = 0; i < compteur; ++i) {
+        gotoLigCol(y + 4 + i, x + 4);
+        printf("%s", pfichier->nom);
+        pfichier = pfichier->ptsuivant;
+    }
+
+    make_rectangle(hConsole, 35, 5 + compteur);
+    int index = 0;
+    int i;
+
+    while (1){
+        //Nettoyage des croix
+        for (int i = 0; i < compteur; ++i) {
+            gotoLigCol(y + 4 + i, x + 2);
+            printf(" ");
+        }
+
+        gotoLigCol(y + 4 + index, x + 2);
+        printf("X");
+
+        i = lireCaract();
+
+        if (i == fleche_bas && index < (compteur - 1)) index ++;
+        else if (i == fleche_haut && index != 0) index --;
+        else if (i == entree){
+            pfichier = pPremierFichier;
+            for (int j = 0; j < index; ++j) {
+                pfichier = pfichier->ptsuivant;
+            }
+
+            int retour = chargement_sauvegarde(pfichier->nom);
+            gotoLigCol(y + 4 + compteur, x + 2);
+            if (retour == 0) printf("ERREUR");
+            else if (retour == 1) printf("Fichier bien charge en memoire");
+
+            sleep(3);
+            return;
+        }
+    }
+}
+
 /*
  * Cette fonction créé les boutons des centrales
  * avec la couleur par defaut
@@ -1252,7 +1348,7 @@ void graph_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
             index = 1;
         }
         //Entrée
-        else if (i == etree){
+        else if (i == entree){
             //Supprimer
             if (index == 0){
                 int retour = supprimer_centrale(pcentrale->codeCentrale);
@@ -1451,7 +1547,7 @@ int affichage_centrale(HANDLE hConsole){
             if (index == 0 || nbcentrales) index ++;
         }
         //Entrée
-        else if (i == etree){
+        else if (i == entree){
             if (index == 0){
                 graph_ajouter_centrale(hConsole);
                 goto rebuild_centrale;
@@ -1657,7 +1753,7 @@ void affichage_ville(HANDLE hConsole){
         else if(i == echap) break;
 
         //Entrée
-        else if (i == etree){
+        else if (i == entree){
             //Supression ville
             if (index == 1){
                 if (pville->villePrecedente) {
@@ -1713,7 +1809,7 @@ int confirmer_quitter(HANDLE hConsole){
         i = lireCaract();
 
         //Entree
-        if (i == etree){
+        if (i == entree){
             if (index == 0) return 0;
             else return 1;
         }
@@ -1853,7 +1949,7 @@ void menu(){
             else goto rebuild;
         }
 
-        else if (i == etree){ //Entrée
+        else if (i == entree){ //Entrée
             gotoLigCol(1, 25);
             if (index == 1){
                 //afficher les villes
@@ -1869,9 +1965,10 @@ void menu(){
                 printf("Enrengistrer");
                 //Enrengistrer dans un fichier
             } else if (index == 4){
-                goto rebuild;
-                printf("Charger");
                 //Charger un fichier
+                graph_charger_fichier(hConsole);
+                goto rebuild;
+
             } else if (index == 5){
                 goto rebuild;
                 printf("Affichage");
