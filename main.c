@@ -986,7 +986,7 @@ void programme_console(){
             scanf("%d", &code_postal);
             printf("pour une nouvelle puissance de: ");
             int puissance;
-            scanf("%d", puissance);
+            scanf("%d", &puissance);
             int retour = modifier_connexion(get_adresse_centrale(numero), get_adresse_ville(code_postal), puissance);
             if (retour == 0) printf("La connexion n'existe pas");
             else printf("Connexion modifiee");
