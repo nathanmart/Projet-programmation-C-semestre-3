@@ -1163,6 +1163,31 @@ void make_bouton(HANDLE hConsole, int cote, int couleur){
 }
 
 
+void graph_enrengistrer_fichier(HANDLE hConsole){
+    //Initialisation
+    system("cls");
+    system("color f0");
+    SetConsoleTextAttribute(hConsole, 15*16);
+    gotoLigCol(y + 1, x + 2);
+    printf("Enrengistrement d'un fichier");
+    gotoLigCol(y + 2, x + 2);
+    printf("Nom:");
+    make_rectangle(hConsole, 30, 5);
+
+    char nom[100];
+    gotoLigCol(y + 2, x + 7);
+    scanf("%s", &nom);
+    strcat(nom, ".tpgif");
+
+    int retour = sauvegarde_fichier(nom);
+
+    gotoLigCol(y + 4, x + 2);
+    if (retour == 1) printf("Fichier bien enrengistre");
+    else if (retour == 0) printf("ERREUR");
+
+    sleep(3);
+}
+
 void graph_charger_fichier(HANDLE hConsole){
     //Initialisation
     system("cls");
@@ -1248,6 +1273,7 @@ void graph_charger_fichier(HANDLE hConsole){
             sleep(3);
             return;
         }
+        else if (i == echap) break;
     }
 }
 
@@ -1961,9 +1987,9 @@ void menu(){
                 affichage_centrale(hConsole);
                 goto rebuild;
             } else if (index == 3){
-                goto rebuild;
-                printf("Enrengistrer");
                 //Enrengistrer dans un fichier
+                graph_enrengistrer_fichier(hConsole);
+                goto rebuild;
             } else if (index == 4){
                 //Charger un fichier
                 graph_charger_fichier(hConsole);
