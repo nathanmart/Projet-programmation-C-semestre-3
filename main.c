@@ -1030,7 +1030,7 @@ void programme_console(){
 //EN COUR DE DVLP
 
 /*
- * Cette fonction renvoyé le code du caractère clavier tapé
+ * Cette fonction renvoie le code du caractère clavier tapé
  */
 int lireCaract(){
 
@@ -1163,6 +1163,80 @@ void make_bouton(HANDLE hConsole, int cote, int couleur){
 }
 
 
+void affichage_resume(HANDLE hConsole){
+    //Initialisation
+    system("cls");
+    system("color f0");
+    SetConsoleTextAttribute(hConsole, 15*16);
+    gotoLigCol(y + 1, x + 2);
+    printf("Affichage de toutes les infos:");
+
+    make_ligne_horizontal(hConsole, 35, y + 2, x);
+
+    gotoLigCol(y + 3, x + 2);
+    printf("Il y a: %d centrales", nbcentrales);
+    gotoLigCol(y + 4, x + 10);
+    printf("%d villes", nbville);
+    gotoLigCol(y + 5, x + 10);
+    printf("%d lignes electrique", nbconnexion);
+
+    make_ligne_horizontal(hConsole, 35, y + 6, x);
+
+    //Affichage des centrales & connexion
+    gotoLigCol(y + 7, x + 8);
+    printf("CENTRALES");
+    PTcentrale pcentrale = pPremiereCentrale;
+    PTligneElectrique pligne;
+    int i = 8; //Compteur position
+    while (pcentrale && nbcentrales){
+        //Affichage centrale
+        gotoLigCol(y + i, x + 2);
+        printf("Nom: %s, Code: %d", pcentrale->nom, pcentrale->codeCentrale);
+        i++;
+
+        //Affichage connexion centrale
+        pligne = pcentrale->villeDependante;
+        while (pligne && pligne->villeDesservie){
+            gotoLigCol(y + i, x + 4);
+            printf("<->%s(%d) -> %d MW", pligne->villeDesservie->nom, pligne->villeDesservie->codePostal, pligne->puissance);
+            pligne = pligne->ligneSuivante;
+            i++;
+        }
+        i++;
+        pcentrale = pcentrale->ptsuivant;
+    }
+    i--;
+    make_ligne_horizontal(hConsole, 35, y + i, x);
+    i++;
+
+    //Affichage des villes
+    gotoLigCol(y + i, x + 8);
+    printf("VILLES");
+    i++;
+    PTville pville = pPremiereVille;
+    while (pville && nbville){
+        gotoLigCol(y + i, x + 2);
+        printf("Nom: %s, Code: %d", pville->nom, pville->codePostal);
+        i++;
+        gotoLigCol(y + i, x + 4);
+        printf("Recoit %d MW", get_puissance_recu(pville));
+        i++;
+        pville = pville->villeSuivante;
+        i++;
+    }
+
+    make_rectangle(hConsole, 35, i);
+
+    while (1){
+        i = lireCaract();
+        if (i == echap) break;
+    }
+}
+
+
+/*
+ * Partie de l'affichage de sauvegarde d'un fichier
+ */
 void graph_enrengistrer_fichier(HANDLE hConsole){
     //Initialisation
     system("cls");
@@ -1188,6 +1262,10 @@ void graph_enrengistrer_fichier(HANDLE hConsole){
     sleep(3);
 }
 
+
+/*
+ * Partie de l'affichage de chargement d'un fichier
+ */
 void graph_charger_fichier(HANDLE hConsole){
     //Initialisation
     system("cls");
@@ -1996,9 +2074,9 @@ void menu(){
                 goto rebuild;
 
             } else if (index == 5){
-                goto rebuild;
-                printf("Affichage");
                 //Affichage résumé
+                affichage_resume(hConsole);
+                goto rebuild;
             }
         }
 
