@@ -1153,12 +1153,37 @@ void make_bouton(HANDLE hConsole, int cote, int couleur){
     if (cote == 0) {
         gotoLigCol(y + 3, x + 4);
         printf(" + ");
+        gotoLigCol(y + 2, x + 3);
+        printf("%c", cangleGH);
+        gotoLigCol(y + 2, x + 7);
+        printf("%c", cangleDH);
+        gotoLigCol(y + 4, x + 3);
+        printf("%c", cangleGB);
+        gotoLigCol(y + 4, x + 7);
+        printf("%c", cangleDB);
     } else if (cote == 1){
         gotoLigCol(y + 3, x + 29);
         printf(" E ");
+        gotoLigCol(y + 2, x + 3 + 25);
+        printf("%c", cangleGH);
+        gotoLigCol(y + 2, x + 7 + 25);
+        printf("%c", cangleDH);
+        gotoLigCol(y + 4, x + 3 + 25);
+        printf("%c", cangleGB);
+        gotoLigCol(y + 4, x + 7 + 25);
+        printf("%c", cangleDB);
+
     } else if (cote == 2){
         gotoLigCol(y + 3, x + 4);
         printf(" X ");
+        gotoLigCol(y + 2, x + 3);
+        printf("%c", cangleGH);
+        gotoLigCol(y + 2, x + 7);
+        printf("%c", cangleDH);
+        gotoLigCol(y + 4, x + 3);
+        printf("%c", cangleGB);
+        gotoLigCol(y + 4, x + 7);
+        printf("%c", cangleDB);
     }
 }
 
