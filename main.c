@@ -68,6 +68,7 @@ typedef struct centrale{
 //Pointeur associé à la structure
 typedef Tcentrale * PTcentrale;
 
+
 //Structure pour l'affichage des fichiers
 typedef struct fichier{
     char nom[100];
@@ -77,7 +78,6 @@ typedef Tfichier * PTfichier;
 
 //On utilise ici des variables globales
 
-//Variable globales
 //Création pointeurs vers les centrales et les villes
 PTcentrale pPremiereCentrale;
 PTville pPremiereVille;
@@ -93,7 +93,7 @@ int nbconnexion = 0;
 /////////////// Fonctions get ///////////////
 
 /*
- * Cette fonction renvoi l'adresse d'une centrale
+ * Cette fonction renvoie l'adresse d'une centrale
  */
 PTcentrale get_adresse_centrale(int code_central){
     PTcentrale pcentrale = pPremiereCentrale;
@@ -129,7 +129,6 @@ int get_puissance_restante_centrale(PTcentrale pcentral){
         puissance_restante -= pligne->puissance;
         pligne = pligne->ligneSuivante;
     }
-
     return puissance_restante;
 }
 
@@ -160,7 +159,7 @@ int get_puissance_recu(PTville pville){
 
 /*
  * Cette fonction est utile seulement pour le développement.
- * Elle créé 3 centrales et 3 villes.
+ * Elle créée 3 centrales et 3 villes.
  * Les connexions entre ces élements sont les suivants :
  * La centrale 1 et la ville 1 simplement reliées entre elles
  * La centrale 2 reliée aux villes 2 et 3
@@ -776,8 +775,6 @@ int supprimer_ville(int code_postal){
 
 /*
  * Cette fonction créée une sauvegarde des données
- * Le chemin doit être envoyé selon le format spécfique à l'OS.
- * Pour windows exemple :"C:\\Users\\nathan\\Documents\\sauvegarde.txt"
  * Renvoie 0 si erreur
  * Renvoie 1 si tout est bon
  */
@@ -900,7 +897,7 @@ void programme_console(){
         printf("Ajouter une connexion: 6\n");
         printf("Modifier une connexion: 7\n");
         printf("Supprimer une connexion: 8\n");
-        printf("Enrengistrer dans un fichier: 9\n");
+        printf("Enregistrer dans un fichier: 9\n");
         printf("Charger un fichier: 10\n");
         printf("Affichage general: 11\n");
         printf("Votre choix: ");
@@ -939,7 +936,7 @@ void programme_console(){
             scanf("%d", &puissance);
             int retour = ajout_centrale(numero, puissance, nom);
             if (retour == 0) printf("Ce code est déja utilisé");
-            else if (retour == 1) printf("Centrale bien cree");
+            else if (retour == 1) printf("Centrale bien ajoutee");
             else printf("Cette centrale existe deja");
         }
         else if(choix == 4){
@@ -974,7 +971,7 @@ void programme_console(){
             scanf("%d", &puissance);
             int retour = ajouter_connexion(get_adresse_centrale(numero), get_adresse_ville(code_postal), puissance);
             if (retour == 0) printf("Pas assez de puissance dispo");
-            else if (retour == 1) printf("Connexion cree");
+            else if (retour == 1) printf("Connexion ajoutee");
             else if (retour == 2) printf("Connexion existante, elles ont ete additionnees");
         }
         else if (choix == 7){
@@ -1097,6 +1094,9 @@ void make_rectangle(HANDLE hConsole, int largeur, int hauteur){
     printf("%c", cangleDB);
 }
 
+/*
+ * Partie graphique qui créée une ligne
+ */
 void make_ligne_horizontal(HANDLE hConsole, int largeur, int ligne, int colonne){
     gotoLigCol(ligne, colonne);
     for (int i = 0; i < largeur; ++i) {
@@ -1104,6 +1104,9 @@ void make_ligne_horizontal(HANDLE hConsole, int largeur, int ligne, int colonne)
     }
 }
 
+/*
+ * Partie graphique qui créée un dessin de centrale
+ */
 void make_dessin_centrale(int posX, int posY){
     gotoLigCol(posX, posY);
     printf("   ___");
@@ -1116,6 +1119,7 @@ void make_dessin_centrale(int posX, int posY){
     gotoLigCol(posX + 4, posY);
     printf(" -------");
 }
+
 
 /*
  * cote = 0 --> bouton +
@@ -1268,7 +1272,7 @@ void graph_enrengistrer_fichier(HANDLE hConsole){
     system("color f0");
     SetConsoleTextAttribute(hConsole, 15*16);
     gotoLigCol(y + 1, x + 2);
-    printf("Enrengistrement d'un fichier");
+    printf("Enregistrement d'un fichier");
     gotoLigCol(y + 2, x + 2);
     printf("Nom:");
     make_rectangle(hConsole, 30, 5);
@@ -1281,7 +1285,7 @@ void graph_enrengistrer_fichier(HANDLE hConsole){
     int retour = sauvegarde_fichier(nom);
 
     gotoLigCol(y + 4, x + 2);
-    if (retour == 1) printf("Fichier bien enrengistre");
+    if (retour == 1) printf("Fichier bien enregistre");
     else if (retour == 0) printf("ERREUR");
 
     sleep(3);
@@ -1313,7 +1317,7 @@ void graph_charger_fichier(HANDLE hConsole){
         while ((dir = readdir(d)) != NULL){
             p = strchr(dir->d_name, '.');
             if (p && !strcmp(p, ".tpgif")){
-                //Enrengistrement du nom des fichiers
+                //Enregistrement du nom des fichiers
                 if (compteur != 0){
                     pfichier->ptsuivant = (PTfichier) malloc(sizeof(Tfichier));
                     pfichier = pfichier->ptsuivant;
@@ -1380,6 +1384,7 @@ void graph_charger_fichier(HANDLE hConsole){
     }
 }
 
+
 /*
  * Cette fonction créé les boutons des centrales
  * avec la couleur par defaut
@@ -1399,6 +1404,9 @@ void make_bouton_centrale_default(HANDLE hConsole, int nb){
 }
 
 
+/*
+ * Partie de l'affichage de l'ajout de connexion
+ */
 void graph_ajouter_connexion(HANDLE hConsole, PTcentrale pcentrale){
     system("cls");
     system("color f0");
@@ -1424,7 +1432,7 @@ void graph_ajouter_connexion(HANDLE hConsole, PTcentrale pcentrale){
     if (check_code_postal_utilise(code_postal)){
         int retour = ajouter_connexion(pcentrale, get_adresse_ville(code_postal), puissance);
         if (retour == 0) printf("Puissance centrale insuffisante");
-        else if (retour == 1) printf("Nouvelle connexion cree");
+        else if (retour == 1) printf("Nouvelle connexion ajoutee");
         else if (retour == 2) {
             printf("Connexion deja existante");
             gotoLigCol(y + 11, x + 2);
@@ -1548,7 +1556,7 @@ void graph_ajouter_centrale(HANDLE hConsole){
     int retour = ajout_centrale(code, puissance_max, nom);
     gotoLigCol(y + 11, x + 2);
     if (retour == 0) printf("Code deja utilise");
-    else if (retour == 1) printf("Centrale creee");
+    else if (retour == 1) printf("Centrale ajoutee");
 
     sleep(3);
 }
@@ -1557,7 +1565,6 @@ void graph_ajouter_centrale(HANDLE hConsole){
  * Partie de l'affichage des centrales
  */
 int affichage_centrale(HANDLE hConsole){
-
     PTcentrale pcentrale = pPremiereCentrale;
     PTligneElectrique pligne;
     int i;
@@ -1747,7 +1754,6 @@ void make_dessin_maison(int posX, int posY){
     printf("   |     |   ");
     gotoLigCol(posX + 8, posY + 1);
     printf("   -------");
-
 }
 
 
@@ -1777,7 +1783,7 @@ void graph_ajouter_ville(HANDLE hConsole){
     retour = ajouter_ville(code_postal, nom);
     if (retour){
         gotoLigCol(y + 15, x + 2);
-        printf("La ville a bien ete creee");
+        printf("La ville a bien ete ajoutee");
     }
     else {
         gotoLigCol(y + 15, x + 2);
@@ -2015,7 +2021,6 @@ void make_cadre_menu(HANDLE hConsole, int x, int y, int largeur){
     gotoLigCol(4, x - 1 + largeur/2);
     printf("MENU");
     gotoLigCol(4, x);
-
 }
 
 
@@ -2032,7 +2037,7 @@ void make_menu_default(HANDLE hConsole, int position_choix){
     gotoLigCol(9, position_choix);
     printf("2 - Voir les centrales\n");
     gotoLigCol(10, position_choix);
-    printf("3 - Enrengistrer dans un fichier\n");
+    printf("3 - Enregistrer dans un fichier\n");
     gotoLigCol(11, position_choix);
     printf("4 - Charger un fichier\n");
     gotoLigCol(12, position_choix);
@@ -2090,7 +2095,7 @@ void menu(){
                 affichage_centrale(hConsole);
                 goto rebuild;
             } else if (index == 3){
-                //Enrengistrer dans un fichier
+                //Enregistrer dans un fichier
                 graph_enrengistrer_fichier(hConsole);
                 goto rebuild;
             } else if (index == 4){
@@ -2123,7 +2128,7 @@ void menu(){
         else if (index == 3) {
             gotoLigCol(10, position_choix);
             SetConsoleTextAttribute(hConsole, couleur_selection);
-            printf("3 - Enrengistrer dans un fichier\n");
+            printf("3 - Enregistrer dans un fichier\n");
         }
 
         else if (index == 4) {
@@ -2137,9 +2142,6 @@ void menu(){
             SetConsoleTextAttribute(hConsole, couleur_selection);
             printf("5 - Affichage resume\n");
         }
-
-        // Si on a changé de page juste avant, on recéer le menu
-
     }
 }
 
@@ -2148,22 +2150,16 @@ void menu(){
 int main() {
     //Création adresse première ville et centrale
     pPremiereCentrale = (PTcentrale) malloc(sizeof(Tcentrale));
+    pPremiereCentrale->ptprecedent = NULL;
+    pPremiereCentrale->ptsuivant = NULL;
+    pPremiereCentrale->codeCentrale = 0;
+    pPremiereCentrale->puissance_max = 0;
+    pPremiereCentrale->villeDependante = NULL;
     pPremiereVille = (PTville) malloc(sizeof (Tville));
+    pPremiereVille->codePostal = -1;
+    pPremiereVille->villeSuivante = NULL;
 
-    ajouter_ville(95270, "Chaumontel");
-    ajouter_ville(56100, "Lorient");
-    ajouter_ville(75000, "Paris");
-    ajouter_ville(12223, "Autre");
-    ajout_centrale(1, 1000, "une");
-    ajout_centrale(2, 250, "deux");
-    ajouter_connexion(pPremiereCentrale, pPremiereVille, 100);
-    ajouter_connexion(pPremiereCentrale, pPremiereVille->villeSuivante, 100);
-    ajouter_connexion(pPremiereCentrale->ptsuivant, pPremiereVille, 183);
-
-    //Programme graphique test
-    //programme_console();
-
-    // Programme graphique en cour de dvlp
+    // Programme graphique
     menu();
 
     return 0;
