@@ -1680,7 +1680,7 @@ int affichage_centrale(HANDLE hConsole){
         else if (i == fleche_haut && index > 0) index--;
         //FLeche bas
         else if (i == fleche_bas && index < ((nb_connexion * 2) + 2)){
-            if (index == 0 || nbcentrales) index ++;
+            if (nbcentrales) index ++;
         }
         //Entrée
         else if (i == entree){
