@@ -1,0 +1,14 @@
+Utilisation du programme:
+
+La navigation se fait à l'aide des touches suivantes:
+    -Fleches
+    -Entrée
+    -Echap
+
+Fonctionnement partie centrale:
+    Changement de centrale: Fleches droite/gauche
+    Navigation entre les boutons: Fleche haut/bas
+    Bouton "+" --> Ajouter centrale
+    Bouton "E" --> Partie édition
+        -> Bouton "X" --> Supprimer la centrale
+        -> Bouton "E" --> MOdifier la puissance max

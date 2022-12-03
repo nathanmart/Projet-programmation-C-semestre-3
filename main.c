@@ -1519,6 +1519,8 @@ void graph_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
                 break;
             }
         }
+        //Quitter
+        else if (i == echap) break;
     }
 }
 
