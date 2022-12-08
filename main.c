@@ -1472,14 +1472,14 @@ void graph_modifier_centrale(HANDLE hConsole, PTcentrale pcentrale){
     while (1){
         i = lireCaract();
 
-        //Fleche gauche
-        if (i == fleche_gauche && index == 1){
+        //Fleche haute
+        if (i == fleche_haut && index == 1){
             make_bouton(hConsole, 1, 0);
             make_bouton(hConsole, 2, 1);
             index = 0;
         }
-        //Fleche droite
-        else if (i == fleche_droite && index == 0){
+        //Fleche bas
+        else if (i == fleche_bas && index == 0){
             make_bouton(hConsole, 1, 1);
             make_bouton(hConsole, 2, 0);
             index = 1;
